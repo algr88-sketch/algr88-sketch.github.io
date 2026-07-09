@@ -94,8 +94,8 @@ body {
 /* --- SECCIÓN HERO (Tu Foto Exterior) --- */
 .hero-section {
     height: 100vh;
-    /* Llama directamente a tu foto suelta en el repositorio con un filtro oscuro encima para leer el texto */
-    background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('carro-principal.jpg') no-repeat center center/cover;
+    /* Ajuste de ruta universal para asegurar lectura en la raíz de GitHub */
+    background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('./carro-principal.jpg') no-repeat center center/cover;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -207,8 +207,8 @@ body {
 /* --- SECCIÓN BENEFICIOS (Tu Foto Interior) --- */
 .benefits-section {
     padding: 120px 6%;
-    /* Llama directamente a tu foto de interior suelta en el repositorio */
-    background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('interior.jpg') no-repeat center center/cover;
+    /* Ajuste de ruta universal para asegurar lectura en la raíz de GitHub */
+    background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('./interior.jpg') no-repeat center center/cover;
     display: flex;
     justify-content: center;
 }
@@ -229,19 +229,20 @@ body {
     list-style: none;
 }
 
+/* Sistema de alineación en bloque para mantener los textos perfectamente alineados en columna */
 .benefits-list li {
     font-size: 1.15rem;
     margin-bottom: 25px;
-    display: flex;
-    align-items: flex-start;
-    gap: 18px;
+    display: grid;
+    grid-template-columns: auto 1fr; /* Icono a la izquierda y el bloque de texto alineado a la derecha */
+    gap: 15px;
     line-height: 1.6;
 }
 
 .benefits-list li i {
     color: var(--accent-silver);
     font-size: 1.4rem;
-    margin-top: 4px;
+    margin-top: 3px;
 }
 
 .benefits-list strong {
@@ -314,7 +315,7 @@ footer .legal {
         padding: 15px 5%;
     }
     .nav-links {
-        display: none; /* Oculta enlaces en móvil para simplificar el flujo inicial */
+        display: none;
     }
     .hero-content h1 {
         font-size: 2.2rem;
