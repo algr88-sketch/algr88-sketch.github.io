@@ -1,0 +1,328 @@
+:root {
+    --bg-dark: #000000;       /* Negro puro como el de tu logo */
+    --card-dark: #0b0d11;     /* Gris ultra oscuro para dar contraste a las tarjetas */
+    --accent-silver: #cfd4d9; /* Tono platino/gris elegante para el "AG" */
+    --accent-blue: #1c3d5a;   /* El azul de la línea inferior de tu tarjeta */
+    --text-light: #ffffff;    /* Blanco para los textos principales */
+    --text-muted: #8e9aa8;    /* Gris suave para descripciones secundarias */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+}
+
+/* --- BARRA DE NAVEGACIÓN (Estilo Logotipo) --- */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 6%;
+    background-color: rgba(0, 0, 0, 0.95);
+    border-bottom: 2px solid var(--accent-blue); /* Línea azul de tu logo */
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: var(--accent-silver);
+    letter-spacing: -1px;
+}
+
+.logo span {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--text-light);
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-left: 10px;
+    border-left: 1px solid #333;
+    padding-left: 12px;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    align-items: center;
+}
+
+.nav-links li a {
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 0 18px;
+    transition: color 0.3s;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.nav-links li a:hover {
+    color: var(--text-light);
+}
+
+.btn-nav {
+    border: 1px solid var(--accent-silver);
+    padding: 8px 20px !important;
+    border-radius: 4px;
+    color: var(--accent-silver) !important;
+    transition: all 0.3s;
+}
+
+.btn-nav:hover {
+    background-color: var(--text-light);
+    color: var(--bg-dark) !important;
+    border-color: var(--text-light);
+}
+
+/* --- SECCIÓN HERO (Tu Foto Exterior) --- */
+.hero-section {
+    height: 100vh;
+    /* Llama directamente a tu foto suelta en el repositorio con un filtro oscuro encima para leer el texto */
+    background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('carro-principal.jpg') no-repeat center center/cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.hero-content {
+    max-width: 850px;
+    margin-top: 60px;
+}
+
+.hero-content h1 {
+    font-size: 3.2rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+}
+
+.hero-content p {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+    line-height: 1.6;
+}
+
+.btn-primary {
+    background-color: #25d366; /* Verde WhatsApp oficial */
+    color: white;
+    padding: 16px 38px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.25);
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #20ba5a;
+    transform: translateY(-3px);
+}
+
+/* --- SECCIÓN SERVICIOS --- */
+.services-section {
+    padding: 120px 6%;
+    text-align: center;
+    background-color: #050608;
+}
+
+.services-section h2 {
+    font-size: 2.6rem;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.section-subtitle {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    margin-bottom: 60px;
+    letter-spacing: 1px;
+}
+
+.services-container {
+    display: flex;
+    justify-content: center;
+    gap: 35px;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.service-card {
+    background: var(--card-dark);
+    padding: 45px 35px;
+    border-radius: 8px;
+    border: 1px solid #141921;
+    width: 360px;
+    transition: transform 0.3s, border-color 0.3s;
+}
+
+.service-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--accent-silver);
+}
+
+.icon-box {
+    font-size: 2.6rem;
+    color: var(--accent-silver);
+    margin-bottom: 25px;
+}
+
+.service-card h3 {
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.service-card p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+
+/* --- SECCIÓN BENEFICIOS (Tu Foto Interior) --- */
+.benefits-section {
+    padding: 120px 6%;
+    /* Llama directamente a tu foto de interior suelta en el repositorio */
+    background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('interior.jpg') no-repeat center center/cover;
+    display: flex;
+    justify-content: center;
+}
+
+.benefits-content {
+    max-width: 750px;
+    width: 100%;
+}
+
+.benefits-section h2 {
+    font-size: 2.6rem;
+    margin-bottom: 50px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.benefits-list {
+    list-style: none;
+}
+
+.benefits-list li {
+    font-size: 1.15rem;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    line-height: 1.6;
+}
+
+.benefits-list li i {
+    color: var(--accent-silver);
+    font-size: 1.4rem;
+    margin-top: 4px;
+}
+
+.benefits-list strong {
+    color: var(--accent-silver);
+    font-weight: 700;
+}
+
+/* --- SECCIÓN LLAMADO A LA ACCIÓN --- */
+.cta-section {
+    padding: 100px 6%;
+    text-align: center;
+    background-color: var(--card-dark);
+    border-top: 1px solid #141921;
+}
+
+.cta-section h2 {
+    font-size: 2.4rem;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.cta-section p {
+    color: var(--text-muted);
+    margin-bottom: 35px;
+    font-size: 1.15rem;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: white;
+    border: 2px solid #25d366;
+    padding: 15px 40px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+    background-color: #25d366;
+    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.35);
+    transform: translateY(-3px);
+}
+
+/* --- PIE DE PÁGINA --- */
+footer {
+    background-color: var(--bg-dark);
+    border-top: 1px solid #141921;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 0.9rem;
+}
+
+footer .legal {
+    font-size: 0.8rem;
+    margin-top: 8px;
+    color: #4a5563;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* --- RESPONSIVE PARA DISPOSITIVOS MÓVILES --- */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 15px 5%;
+    }
+    .nav-links {
+        display: none; /* Oculta enlaces en móvil para simplificar el flujo inicial */
+    }
+    .hero-content h1 {
+        font-size: 2.2rem;
+    }
+    .hero-content p {
+        font-size: 1.1rem;
+    }
+    .services-section h2, .benefits-section h2 {
+        font-size: 2rem;
+    }
+}
