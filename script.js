@@ -1,15 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
     const btnEs = document.getElementById("btn-es");
     const btnEn = document.getElementById("btn-en");
-    
-    // Captura todos los elementos que contengan textos traducibles
     const translateElements = document.querySelectorAll("[data-es]");
 
-    // Enlaces dinámicos de WhatsApp para cambiar el mensaje según idioma
     const whatsappHero = document.getElementById("whatsapp-hero");
     const whatsappFooter = document.getElementById("whatsapp-footer");
 
+    let currentLang = "es";
+
+    // --- LÓGICA DE IDIOMAS (CON TU NÚMERO ACTUALIZADO) ---
     function changeLanguage(lang) {
+        currentLang = lang;
         translateElements.forEach(elem => {
             if (lang === "es") {
                 elem.textContent = elem.getAttribute("data-es");
@@ -18,7 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        // Modifica los mensajes predeterminados de WhatsApp según el idioma seleccionado
         if (lang === "es") {
             btnEs.classList.add("active");
             btnEn.classList.remove("active");
@@ -32,7 +32,82 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Escuchadores de eventos para los botones del encabezado
     btnEs.addEventListener("click", () => changeLanguage("es"));
     btnEn.addEventListener("click", () => changeLanguage("en"));
+
+
+    // --- LÓGICA DEL FORMULARIO DE CALIFICACIÓN INTERACTIVO ---
+    const starsContainer = document.getElementById("form-stars");
+    const starIcons = starsContainer.querySelectorAll("i");
+    let selectedRating = 0;
+
+    // Manejo del hover y clic en las estrellas del formulario
+    starIcons.forEach(star => {
+        star.addEventListener("click", () => {
+            selectedRating = parseInt(star.getAttribute("data-value"));
+            updateStarsDisplay(selectedRating);
+        });
+    });
+
+    function updateStarsDisplay(rating) {
+        starIcons.forEach(star => {
+            const val = parseInt(star.getAttribute("data-value"));
+            if (val <= rating) {
+                star.className = "fas fa-star"; // Estrella llena
+            } else {
+                star.className = "far fa-star"; // Estrella vacía
+            }
+        });
+    }
+
+    const reviewForm = document.getElementById("review-form");
+    const reviewsContainer = document.getElementById("reviews-container");
+    const noReviewsMsg = document.getElementById("no-reviews-msg");
+
+    reviewForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        if (selectedRating === 0) {
+            alert(currentLang === "es" ? "Por favor, selecciona una calificación con estrellas." : "Please select a star rating.");
+            return;
+        }
+
+        const nameInput = document.getElementById("reviewer-name").value;
+        const textInput = document.getElementById("reviewer-text").value;
+
+        // Ocultar mensaje de "no hay reseñas"
+        if (noReviewsMsg) {
+            noReviewsMsg.style.display = "none";
+        }
+
+        // Crear dinámicamente la nueva tarjeta de reseña
+        const reviewCard = document.createElement("div");
+        reviewCard.className = "review-card";
+
+        // Construir bloque de estrellas amarillas
+        let starsHtml = '<div class="stars">';
+        for (let i = 1; i <= 5; i++) {
+            if (i <= selectedRating) {
+                starsHtml += '<i class="fas fa-star"></i>';
+            } else {
+                starsHtml += '<i class="far fa-star"></i>';
+            }
+        }
+        starsHtml += '</div>';
+
+        // Estructura de la reseña
+        reviewCard.innerHTML = `
+            ${starsHtml}
+            <p class="review-text">&ldquo;${textInput}&rdquo;</p>
+            <span class="review-author">- ${nameInput}</span>
+        `;
+
+        // Añadir la nueva reseña arriba de las demás
+        reviewsContainer.insertBefore(reviewCard, reviewsContainer.firstChild);
+
+        // Resetear el formulario de forma limpia
+        reviewForm.reset();
+        selectedRating = 0;
+        updateStarsDisplay(0);
+    });
 });

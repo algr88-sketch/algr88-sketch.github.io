@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AG Executive Driver | Transporte Ejecutivo Privado</title>
     
-    <!-- Fuentes de Google: Playfair Display para el AG elegante y Montserrat para el texto moderno -->
+    <!-- Fuentes de Google: Playfair Display y Montserrat -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700&display=swap" rel="stylesheet">
@@ -17,12 +17,11 @@
 </head>
 <body>
 
-    <!-- Barra de Navegación (Navbar idéntico al logotipo con Selector de Idioma) -->
+    <!-- Barra de Navegación con Selector de Idioma -->
     <header>
         <nav class="navbar">
             <div class="logo">AG <span>Executive Driver</span></div>
             
-            <!-- Selector de Idioma en el Centro -->
             <div class="lang-selector">
                 <button id="btn-es" class="lang-btn active">Español</button>
                 <button id="btn-en" class="lang-btn">English</button>
@@ -38,12 +37,11 @@
         </nav>
     </header>
 
-    <!-- Sección Principal (Hero) - Usa tu foto carro-principal.jpg -->
+    <!-- Sección Principal (Hero) -->
     <section id="inicio" class="hero-section">
         <div class="hero-content">
             <h1 data-es="Tu Destino con la Puntualidad y Confort que Mereces" data-en="Your Destination with the Punctuality and Comfort You Deserve">Tu Destino con la Puntualidad y Confort que Mereces</h1>
             <p data-es="Servicio de transporte privado exclusivo y personalizado. Experiencia de primer nivel, seguridad garantizada y atención directa con conductor bilingüe." data-en="Exclusive and personalized private transportation service. First-class experience, guaranteed safety, and direct attention with a bilingual driver.">Servicio de transporte privado exclusivo y personalizado. Experiencia de primer nivel, seguridad garantizada y atención directa con conductor bilingüe.</p>
-            <!-- REEMPLAZA el número 573176653331 con tu número real de WhatsApp -->
             <a href="https://wa.me/573176653331?text=Hola,%20me%20gustaría%20cotizar%20un%20servicio%20con%20AG%20Executive%20Driver." target="_blank" class="btn-primary" id="whatsapp-hero">
                 <i class="fab fa-whatsapp"></i> <span data-es="Cotizar por WhatsApp" data-en="Quote via WhatsApp">Cotizar por WhatsApp</span>
             </a>
@@ -73,7 +71,7 @@
         </div>
     </section>
 
-    <!-- Sección de Beneficios - Usa tu foto interior.jpg de fondo -->
+    <!-- Sección de Beneficios -->
     <section id="beneficios" class="benefits-section">
         <div class="benefits-content">
             <h2 data-es="¿Por qué elegir AG Executive Driver?" data-en="Why Choose AG Executive Driver?">¿Por qué elegir AG Executive Driver?</h2>
@@ -110,37 +108,40 @@
         </div>
     </section>
 
-    <!-- Nueva Sección de Testimonios / Comentarios de Usuarios -->
+    <!-- Sección Interactiva de Reseñas / Calificaciones -->
     <section id="testimonios" class="reviews-section">
-        <h2 data-es="Experiencias de Nuestros Usuarios" data-en="Our Users' Experiences">Experiencias de Nuestros Usuarios</h2>
-        <p class="section-subtitle" data-es="La satisfacción de nuestros clientes avala nuestro compromiso." data-en="Our clients' satisfaction backs our commitment.">La satisfacción de nuestros clientes avala nuestro compromiso.</p>
+        <h2 data-es="Califica tu Experiencia" data-en="Rate Your Experience">Califica tu Experiencia</h2>
+        <p class="section-subtitle" data-es="Tu opinión nos ayuda a mantener el estándar premium." data-en="Your feedback helps us maintain our premium standard.">Tu opinión nos ayuda a mantener el estándar premium.</p>
         
-        <div class="reviews-container">
-            <!-- Tarjeta Reseña 1 -->
-            <div class="review-card">
-                <div class="stars">
-                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+        <div class="reviews-wrapper">
+            <!-- Formulario para dejar comentarios -->
+            <form id="review-form" class="review-form">
+                <div class="rating-input">
+                    <label data-es="Tu Calificación:" data-en="Your Rating:">Tu Calificación:</label>
+                    <div class="star-rating" id="form-stars">
+                        <i class="far fa-star" data-value="1"></i>
+                        <i class="far fa-star" data-value="2"></i>
+                        <i class="far fa-star" data-value="3"></i>
+                        <i class="far fa-star" data-value="4"></i>
+                        <i class="far fa-star" data-value="5"></i>
+                    </div>
                 </div>
-                <p class="review-text" data-es="&ldquo;Excelente servicio intermunicipal. El conductor fue extremadamente puntual, el vehículo 2026 estaba impecable y la atención en inglés facilitó todo para nuestro ejecutivo extranjero.&rdquo;" data-en="&ldquo;Excellent intercity service. The driver was extremely punctual, the 2026 vehicle was pristine, and the attention in English made everything easy for our foreign executive.&rdquo;">&ldquo;Excelente servicio intermunicipal. El conductor fue extremadamente puntual, el vehículo 2026 estaba impecable y la atención en inglés facilitó todo para nuestro ejecutivo extranjero.&rdquo;</p>
-                <span class="review-author">- Carlos Mendoza (CEO Latam Logistics)</span>
-            </div>
+                <input type="text" id="reviewer-name" placeholder="Tu Nombre / Name" required>
+                <textarea id="reviewer-text" rows="4" placeholder="Escribe tu comentario aquí... / Write your comment here..." required></textarea>
+                <button type="submit" class="btn-submit" data-es="Enviar Reseña" data-en="Submit Review">Enviar Reseña</button>
+            </form>
 
-            <!-- Tarjeta Reseña 2 -->
-            <div class="review-card">
-                <div class="stars">
-                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                </div>
-                <p class="review-text" data-es="&ldquo;Un servicio impecable de puerta a puerta hacia el aeropuerto. El confort del carro y la tranquilidad de viajar con el dueño del negocio marcan la diferencia.&rdquo;" data-en="&ldquo;An impeccable door-to-door service to the airport. The comfort of the car and the peace of mind of traveling with the business owner make all the difference.&rdquo;">&ldquo;Un servicio impecable de puerta a puerta hacia el aeropuerto. El confort del carro y la tranquilidad de viajar con el dueño del negocio marcan la diferencia.&rdquo;</p>
-                <span class="review-author">- Sophia Vance (Corporate Consultant)</span>
+            <!-- Contenedor dinámico donde aparecerán las opiniones -->
+            <div id="reviews-container" class="reviews-container">
+                <p id="no-reviews-msg" class="no-reviews" data-es="¡Sé el primero en calificar nuestro servicio!" data-en="Be the first to rate our service!">¡Sé el primero en calificar nuestro servicio!</p>
             </div>
         </div>
     </section>
 
-    <!-- Sección de Contacto / Cierre -->
+    <!-- Sección de Contacto -->
     <section id="contacto" class="cta-section">
         <h2 data-es="¿Por qué dejar tu movilidad al azar?" data-en="Why leave your mobility to chance?">¿Por qué dejar tu movilidad al azar?</h2>
         <p data-es="Atención personalizada e inmediata. Reserva tu trayecto de forma rápida y segura directamente conmigo." data-en="Immediate, personalized attention. Book your journey quickly and safely directly with me.">Atención personalizada e inmediata. Reserva tu trayecto de forma rápida y segura directamente conmigo.</p>
-        <!-- REEMPLAZA el número 573176653331 con tu número real de WhatsApp -->
         <a href="https://wa.me/573176653331?text=Hola,%20quiero%20programar%20un%20viaje%20con%20AG%20Executive%20Driver." target="_blank" class="btn-secondary" id="whatsapp-footer">
             <i class="fab fa-whatsapp"></i> <span data-es="Reservar Ahora" data-en="Book Your Ride">Reservar Ahora</span>
         </a>
@@ -152,7 +153,6 @@
         <p class="legal">Premium Private Transport for Every Journey.</p>
     </footer>
 
-    <!-- Script de control bilingüe incorporado -->
     <script src="script.js"></script>
 </body>
 </html>

@@ -1,9 +1,9 @@
 :root {
-    --bg-dark: #000000;       /* Negro puro logo */
-    --card-dark: #0b0d11;     /* Gris ultra oscuro */
-    --accent-silver: #cfd4d9; /* Gris elegante AG */
-    --accent-blue: #1c3d5a;   /* Línea azul corporativa */
-    --accent-gold: #e6b800;   /* Color oro para las estrellas de calificación */
+    --bg-dark: #000000;       
+    --card-dark: #0b0d11;     
+    --accent-silver: #cfd4d9; 
+    --accent-blue: #1c3d5a;   
+    --accent-gold: #e6b800;   
     --text-light: #ffffff;    
     --text-muted: #8e9aa8;    
 }
@@ -59,7 +59,7 @@ body {
     padding-left: 12px;
 }
 
-/* --- SELECTOR DE IDIOMAS (CENTRO DEL ENCABEZADO) --- */
+/* Selector de Idiomas en la barra */
 .lang-selector {
     display: flex;
     gap: 10px;
@@ -279,7 +279,7 @@ body {
     font-weight: 700;
 }
 
-/* --- SECCIÓN TESTIMONIOS (RESEÑAS) --- */
+/* --- SECCIÓN INTERACTIVA DE RESEÑAS --- */
 .reviews-section {
     padding: 120px 6%;
     text-align: center;
@@ -292,44 +292,134 @@ body {
     margin-bottom: 15px;
 }
 
+.reviews-wrapper {
+    max-width: 700px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}
+
+/* Estilo del Formulario Premium */
+.review-form {
+    background-color: var(--card-dark);
+    border: 1px solid #141921;
+    padding: 35px;
+    border-radius: 8px;
+    text-align: left;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.rating-input {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.rating-input label {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--accent-silver);
+}
+
+.star-rating {
+    display: flex;
+    gap: 5px;
+}
+
+.star-rating i {
+    font-size: 1.3rem;
+    color: #4a5563; 
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.star-rating i.fas {
+    color: var(--accent-gold); 
+}
+
+.review-form input, .review-form textarea {
+    width: 100%;
+    background-color: #000;
+    border: 1px solid #222;
+    border-radius: 4px;
+    padding: 12px 15px;
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.review-form input:focus, .review-form textarea:focus {
+    border-color: var(--accent-blue);
+}
+
+.btn-submit {
+    background-color: var(--accent-blue);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-submit:hover {
+    background-color: #244e73;
+}
+
+/* Contenedor de las reseñas agregadas */
 .reviews-container {
     display: flex;
-    justify-content: center;
-    gap: 30px;
-    flex-wrap: wrap;
-    max-width: 1100px;
-    margin: 0 auto;
+    flex-direction: column;
+    gap: 20px;
+    text-align: left;
+}
+
+.no-reviews {
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: center;
+    font-size: 1.1rem;
+    padding: 20px;
 }
 
 .review-card {
     background-color: var(--card-dark);
     border: 1px solid #141921;
-    padding: 40px 30px;
-    border-radius: 8px;
-    width: 480px;
-    text-align: left;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    padding: 25px;
+    border-radius: 6px;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
 .stars {
     color: var(--accent-gold);
-    font-size: 1.1rem;
-    margin-bottom: 20px;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
 }
 
 .review-text {
-    font-size: 1.05rem;
-    line-height: 1.7;
+    font-size: 1rem;
+    line-height: 1.6;
     color: var(--accent-silver);
     font-style: italic;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .review-author {
-    display: block;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 700;
     color: var(--text-muted);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* --- SECCIÓN LLAMADO A LA ACCIÓN --- */
@@ -397,7 +487,6 @@ footer .legal {
         flex-direction: column;
         gap: 15px;
         padding: 15px;
-        text-align: center;
     }
     .hero-content {
         margin-top: 120px;
