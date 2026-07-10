@@ -1,10 +1,11 @@
 :root {
-    --bg-dark: #000000;       /* Negro puro como el de tu logo */
-    --card-dark: #0b0d11;     /* Gris ultra oscuro para dar contraste a las tarjetas */
-    --accent-silver: #cfd4d9; /* Tono platino/gris elegante para el "AG" */
-    --accent-blue: #1c3d5a;   /* El azul de la línea inferior de tu tarjeta */
-    --text-light: #ffffff;    /* Blanco para los textos principales */
-    --text-muted: #8e9aa8;    /* Gris suave para descripciones secundarias */
+    --bg-dark: #000000;       /* Negro puro logo */
+    --card-dark: #0b0d11;     /* Gris ultra oscuro */
+    --accent-silver: #cfd4d9; /* Gris elegante AG */
+    --accent-blue: #1c3d5a;   /* Línea azul corporativa */
+    --accent-gold: #e6b800;   /* Color oro para las estrellas de calificación */
+    --text-light: #ffffff;    
+    --text-muted: #8e9aa8;    
 }
 
 * {
@@ -23,14 +24,14 @@ body {
     color: var(--text-light);
 }
 
-/* --- BARRA DE NAVEGACIÓN (Estilo Logotipo) --- */
+/* --- BARRA DE NAVEGACIÓN --- */
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px 6%;
     background-color: rgba(0, 0, 0, 0.95);
-    border-bottom: 2px solid var(--accent-blue); /* Línea azul de tu logo */
+    border-bottom: 2px solid var(--accent-blue);
     position: fixed;
     width: 100%;
     top: 0;
@@ -56,6 +57,37 @@ body {
     margin-left: 10px;
     border-left: 1px solid #333;
     padding-left: 12px;
+}
+
+/* --- SELECTOR DE IDIOMAS (CENTRO DEL ENCABEZADO) --- */
+.lang-selector {
+    display: flex;
+    gap: 10px;
+    background-color: #11141a;
+    padding: 4px;
+    border-radius: 6px;
+    border: 1px solid #222;
+}
+
+.lang-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.lang-btn:hover {
+    color: var(--text-light);
+}
+
+.lang-btn.active {
+    background-color: var(--accent-blue);
+    color: var(--text-light);
 }
 
 .nav-links {
@@ -91,7 +123,7 @@ body {
     border-color: var(--text-light);
 }
 
-/* --- SECCIÓN HERO (Tu Foto Exterior) --- */
+/* --- SECCIÓN HERO --- */
 .hero-section {
     height: 100vh;
     background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('./carro-principal.jpg') no-repeat center center/cover;
@@ -123,7 +155,7 @@ body {
 }
 
 .btn-primary {
-    background-color: #25d366; /* Verde WhatsApp oficial */
+    background-color: #25d366;
     color: white;
     padding: 16px 38px;
     text-decoration: none;
@@ -203,7 +235,7 @@ body {
     line-height: 1.7;
 }
 
-/* --- SECCIÓN BENEFICIOS (Tu Foto Interior) --- */
+/* --- SECCIÓN BENEFICIOS --- */
 .benefits-section {
     padding: 120px 6%;
     background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('./interior.jpg') no-repeat center center/cover;
@@ -227,12 +259,11 @@ body {
     list-style: none;
 }
 
-/* Sistema de alineación en bloque para mantener los textos perfectamente alineados en columna */
 .benefits-list li {
     font-size: 1.15rem;
     margin-bottom: 25px;
     display: grid;
-    grid-template-columns: auto 1fr; /* Icono a la izquierda y el bloque de texto alineado a la derecha */
+    grid-template-columns: auto 1fr;
     gap: 15px;
     line-height: 1.6;
 }
@@ -246,6 +277,59 @@ body {
 .benefits-list strong {
     color: var(--accent-silver);
     font-weight: 700;
+}
+
+/* --- SECCIÓN TESTIMONIOS (RESEÑAS) --- */
+.reviews-section {
+    padding: 120px 6%;
+    text-align: center;
+    background-color: #050608;
+}
+
+.reviews-section h2 {
+    font-size: 2.6rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.reviews-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.review-card {
+    background-color: var(--card-dark);
+    border: 1px solid #141921;
+    padding: 40px 30px;
+    border-radius: 8px;
+    width: 480px;
+    text-align: left;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.stars {
+    color: var(--accent-gold);
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.review-text {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--accent-silver);
+    font-style: italic;
+    margin-bottom: 20px;
+}
+
+.review-author {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-muted);
 }
 
 /* --- SECCIÓN LLAMADO A LA ACCIÓN --- */
@@ -307,21 +391,27 @@ footer .legal {
     text-transform: uppercase;
 }
 
-/* --- RESPONSIVE PARA DISPOSITIVOS MÓVILES --- */
-@media (max-width: 768px) {
+/* --- RESPONSIVE --- */
+@media (max-width: 992px) {
     .navbar {
-        padding: 15px 5%;
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+        text-align: center;
     }
+    .hero-content {
+        margin-top: 120px;
+    }
+}
+
+@media (max-width: 768px) {
     .nav-links {
         display: none;
     }
     .hero-content h1 {
         font-size: 2.2rem;
     }
-    .hero-content p {
-        font-size: 1.1rem;
-    }
-    .services-section h2, .benefits-section h2 {
+    .services-section h2, .benefits-section h2, .reviews-section h2 {
         font-size: 2rem;
     }
 }
