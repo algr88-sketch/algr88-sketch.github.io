@@ -1,113 +1,206 @@
+// --- CONFIGURACIÓN DE FIREBASE (Reemplaza con tus datos reales de Firebase Console) ---
+const firebaseConfig = {
+  apiKey: "AIzaSyBI7hzuEoHTBfvD3qi9pemIsgfv1OwEvpU",
+  authDomain: "ag-executive.firebaseapp.com",
+  databaseURL: "https://ag-executive-default-rtdb.firebaseio.com",
+  projectId: "ag-executive",
+  storageBucket: "ag-executive.firebasestorage.app",
+  messagingSenderId: "611392539268",
+  appId: "1:611392539268:web:2dafae6cd3e01d0f3bd0d1",
+  measurementId: "G-V1E4ERNKY6"
+};
+
+// Inicializar Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const database = firebase.database();
+
 document.addEventListener("DOMContentLoaded", () => {
+
+    // --- IDIOMAS ---
     const btnEs = document.getElementById("btn-es");
     const btnEn = document.getElementById("btn-en");
     const translateElements = document.querySelectorAll("[data-es]");
-
-    const whatsappHero = document.getElementById("whatsapp-hero");
-    const whatsappFooter = document.getElementById("whatsapp-footer");
-
     let currentLang = "es";
 
-    // --- LÓGICA DE IDIOMAS (CON TU NÚMERO ACTUALIZADO) ---
     function changeLanguage(lang) {
         currentLang = lang;
         translateElements.forEach(elem => {
-            if (lang === "es") {
-                elem.textContent = elem.getAttribute("data-es");
-            } else {
-                elem.textContent = elem.getAttribute("data-en");
-            }
+            elem.textContent = (lang === "es") ? elem.getAttribute("data-es") : elem.getAttribute("data-en");
         });
-
-        if (lang === "es") {
-            btnEs.classList.add("active");
-            btnEn.classList.remove("active");
-            whatsappHero.href = "https://wa.me/573176653331?text=Hola,%20me%20gustaría%20cotizar%20un%20servicio%20con%20AG%20Executive%20Driver.";
-            whatsappFooter.href = "https://wa.me/573176653331?text=Hola,%20quiero%20programar%20un%20viaje%20con%20AG%20Executive%20Driver.";
-        } else {
-            btnEn.classList.add("active");
-            btnEs.classList.remove("active");
-            whatsappHero.href = "https://wa.me/573176653331?text=Hello,%20I%20would%20like%20to%20request%20a%20quote%20for%20AG%20Executive%20Driver%20services.";
-            whatsappFooter.href = "https://wa.me/573176653331?text=Hello,%20I%20want%20to%20schedule%20a%20ride%20with%20AG%20Executive%20Driver.";
-        }
+        btnEs.classList.toggle("active", lang === "es");
+        btnEn.classList.toggle("active", lang === "en");
     }
 
     btnEs.addEventListener("click", () => changeLanguage("es"));
     btnEn.addEventListener("click", () => changeLanguage("en"));
 
+    // --- GOOGLE MAPS AUTOCOMPLETE & CALCULADORA ---
+    const originInput = document.getElementById("origin-input");
+    const destinationInput = document.getElementById("destination-input");
+    const tollCheck = document.getElementById("toll-check");
+    const tollsNumberBox = document.getElementById("tolls-number-box");
+    const tollsCount = document.getElementById("tolls-count");
 
-    // --- LÓGICA DEL FORMULARIO DE CALIFICACIÓN INTERACTIVO ---
+    // Activar autocompletado si Google Maps está cargado
+    if (window.google && google.maps && google.maps.places) {
+        new google.maps.places.Autocomplete(originInput);
+        new google.maps.places.Autocomplete(destinationInput);
+    }
+
+    tollCheck.addEventListener("change", () => {
+        tollsNumberBox.style.display = tollCheck.checked ? "block" : "none";
+    });
+
+    const calcForm = document.getElementById("calc-form");
+    const calcResult = document.getElementById("calc-result");
+    const resTime = document.getElementById("res-time");
+    const resDistance = document.getElementById("res-distance");
+    const resPrice = document.getElementById("res-price");
+    const btnBookWhatsapp = document.getElementById("btn-book-whatsapp");
+
+    let calculatedTripData = null;
+
+    calcForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const origin = originInput.value;
+        const destination = destinationInput.value;
+
+        if (!origin || !destination) return;
+
+        // Servicio de Matriz de Distancia de Google Maps
+        const service = new google.maps.DistanceMatrixService();
+        service.getDistanceMatrix({
+            origins: [origin],
+            destinations: [destination],
+            travelMode: google.maps.TravelMode.DRIVING,
+            unitSystem: google.maps.UnitSystem.METRIC
+        }, (response, status) => {
+            if (status === "OK") {
+                const result = response.rows[0].elements[0];
+                if (result.status === "OK") {
+                    const distanceKm = result.distance.value / 1000; // de metros a Km
+                    const durationMin = Math.round(result.duration.value / 60); // de segs a Min
+
+                    // --- FÓRMULA DE TARIFA ---
+                    // Tiempo Ideal por viaje = (Distancia total * 60) / 50 (estimando 50 km/h)
+                    const tiempoIdeal = (distanceKm * 60) / 50;
+                    
+                    let cargoTiempoExtra = 0;
+                    if ((durationMin - tiempoIdeal) > 0) {
+                        cargoTiempoExtra = (durationMin - tiempoIdeal) * (35583 / 60);
+                    }
+
+                    const tienePeaje = tollCheck.checked;
+                    const numPeajes = tienePeaje ? parseInt(tollsCount.value) || 1 : 0;
+                    const costoPeajes = tienePeaje ? (13300 * numPeajes) : 0;
+
+                    // Tarifa Sugerida = (Km * 2087) + tiempoExtra + peajes
+                    let tarifaTotal = (distanceKm * 2087) + cargoTiempoExtra + costoPeajes;
+                    tarifaTotal = Math.round(tarifaTotal / 1000) * 1000; // Redondeo limpio a miles
+
+                    // Mostrar en pantalla
+                    resDistance.textContent = `${distanceKm.toFixed(1)} km`;
+                    resTime.textContent = `${durationMin} min`;
+                    resPrice.textContent = `$${tarifaTotal.toLocaleString('es-CO')} COP`;
+                    calcResult.style.display = "block";
+
+                    calculatedTripData = {
+                        origin,
+                        destination,
+                        distanceKm: distanceKm.toFixed(1),
+                        durationMin,
+                        price: `$${tarifaTotal.toLocaleString('es-CO')} COP`
+                    };
+                } else {
+                    alert("No se pudo calcular la ruta entre estos dos puntos. Intenta especificar ciudad y dirección.");
+                }
+            } else {
+                alert("Error al conectar con el servicio de Google Maps.");
+            }
+        });
+    });
+
+    // Enviar cotización exacta a WhatsApp
+    btnBookWhatsapp.addEventListener("click", () => {
+        if (!calculatedTripData) return;
+        const msg = `Hola AG Executive Driver, me gustaría reservar el siguiente viaje cotizado en la web:\n\n📍 Origen: ${calculatedTripData.origin}\n🏁 Destino: ${calculatedTripData.destination}\n📏 Distancia: ${calculatedTripData.distanceKm} km\n⏱️ Tiempo: ${calculatedTripData.durationMin} min\n💵 Valor Cotizado: ${calculatedTripData.price}`;
+        const url = `https://wa.me/573176653331?text=${encodeURIComponent(msg)}`;
+        window.open(url, "_blank");
+    });
+
+
+    // --- MANEJO DE RESEÑAS CON FIREBASE (Persistencia Real) ---
     const starsContainer = document.getElementById("form-stars");
     const starIcons = starsContainer.querySelectorAll("i");
     let selectedRating = 0;
 
-    // Manejo del hover y clic en las estrellas del formulario
     starIcons.forEach(star => {
         star.addEventListener("click", () => {
             selectedRating = parseInt(star.getAttribute("data-value"));
-            updateStarsDisplay(selectedRating);
+            starIcons.forEach(s => {
+                const val = parseInt(s.getAttribute("data-value"));
+                s.className = (val <= selectedRating) ? "fas fa-star" : "far fa-star";
+            });
         });
     });
 
-    function updateStarsDisplay(rating) {
-        starIcons.forEach(star => {
-            const val = parseInt(star.getAttribute("data-value"));
-            if (val <= rating) {
-                star.className = "fas fa-star"; // Estrella llena
-            } else {
-                star.className = "far fa-star"; // Estrella vacía
-            }
-        });
-    }
-
     const reviewForm = document.getElementById("review-form");
     const reviewsContainer = document.getElementById("reviews-container");
-    const noReviewsMsg = document.getElementById("no-reviews-msg");
+    const reviewsRef = database.ref("reviews");
 
+    // Guardar en Firebase
     reviewForm.addEventListener("submit", (e) => {
         e.preventDefault();
 
         if (selectedRating === 0) {
-            alert(currentLang === "es" ? "Por favor, selecciona una calificación con estrellas." : "Please select a star rating.");
+            alert("Por favor selecciona una calificación de 1 a 5 estrellas.");
             return;
         }
 
-        const nameInput = document.getElementById("reviewer-name").value;
-        const textInput = document.getElementById("reviewer-text").value;
+        const newReview = {
+            name: document.getElementById("reviewer-name").value,
+            text: document.getElementById("reviewer-text").value,
+            rating: selectedRating,
+            timestamp: Date.now()
+        };
 
-        // Ocultar mensaje de "no hay reseñas"
-        if (noReviewsMsg) {
-            noReviewsMsg.style.display = "none";
+        reviewsRef.push(newReview).then(() => {
+            reviewForm.reset();
+            selectedRating = 0;
+            starIcons.forEach(s => s.className = "far fa-star");
+        });
+    });
+
+    // Leer en tiempo real desde Firebase para TODOS los usuarios
+    reviewsRef.on("value", (snapshot) => {
+        reviewsContainer.innerHTML = "";
+        const data = snapshot.val();
+        if (!data) {
+            reviewsContainer.innerHTML = '<p class="no-reviews">¡Sé el primero en calificar nuestro servicio!</p>';
+            return;
         }
 
-        // Crear dinámicamente la nueva tarjeta de reseña
-        const reviewCard = document.createElement("div");
-        reviewCard.className = "review-card";
+        const reviewsArray = Object.values(data).sort((a,b) => b.timestamp - a.timestamp);
 
-        // Construir bloque de estrellas amarillas
-        let starsHtml = '<div class="stars">';
-        for (let i = 1; i <= 5; i++) {
-            if (i <= selectedRating) {
-                starsHtml += '<i class="fas fa-star"></i>';
-            } else {
-                starsHtml += '<i class="far fa-star"></i>';
+        reviewsArray.forEach(rev => {
+            const card = document.createElement("div");
+            card.className = "review-card";
+
+            let starsHtml = '<div class="stars">';
+            for (let i = 1; i <= 5; i++) {
+                starsHtml += (i <= rev.rating) ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>';
             }
-        }
-        starsHtml += '</div>';
+            starsHtml += '</div>';
 
-        // Estructura de la reseña
-        reviewCard.innerHTML = `
-            ${starsHtml}
-            <p class="review-text">&ldquo;${textInput}&rdquo;</p>
-            <span class="review-author">- ${nameInput}</span>
-        `;
-
-        // Añadir la nueva reseña arriba de las demás
-        reviewsContainer.insertBefore(reviewCard, reviewsContainer.firstChild);
-
-        // Resetear el formulario de forma limpia
-        reviewForm.reset();
-        selectedRating = 0;
-        updateStarsDisplay(0);
+            card.innerHTML = `
+                ${starsHtml}
+                <p class="review-text">&ldquo;${rev.text}&rdquo;</p>
+                <span class="review-author">- ${rev.name}</span>
+            `;
+            reviewsContainer.appendChild(card);
+        });
     });
 });

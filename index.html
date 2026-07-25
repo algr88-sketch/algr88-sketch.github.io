@@ -5,116 +5,132 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AG Executive Driver | Transporte Ejecutivo Privado</title>
     
-    <!-- Fuentes de Google: Playfair Display y Montserrat -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700&display=swap" rel="stylesheet">
-    
-    <!-- Iconos de FontAwesome para el toque premium y las estrellas -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <link rel="stylesheet" href="style.css">
+
+    <!-- Firebase App y Database SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <!-- Google Maps API (Reemplaza TU_API_KEY_AQUI por tu clave de Google Cloud) -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAznNGMMhGUalXVZwQZTeH88q37nxHH6Is&libraries=places"></script>
 </head>
 <body>
 
-    <!-- Barra de Navegación con Selector de Idioma -->
+    <!-- Header -->
     <header>
         <nav class="navbar">
             <div class="logo">AG <span>Executive Driver</span></div>
-            
             <div class="lang-selector">
                 <button id="btn-es" class="lang-btn active">Español</button>
                 <button id="btn-en" class="lang-btn">English</button>
             </div>
-
             <ul class="nav-links">
                 <li><a href="#inicio" data-es="Inicio" data-en="Home">Inicio</a></li>
+                <li><a href="#cotizador" data-es="Cotizar" data-en="Estimate">Cotizar</a></li>
                 <li><a href="#servicios" data-es="Servicios" data-en="Services">Servicios</a></li>
-                <li><a href="#beneficios" data-es="Beneficios" data-en="Benefits">Beneficios</a></li>
                 <li><a href="#testimonios" data-es="Reseñas" data-en="Reviews">Reseñas</a></li>
-                <li><a href="#contacto" class="btn-nav" data-es="Reservar" data-en="Book Now">Reservar</a></li>
+                <li><a href="#contacto" class="btn-nav" data-es="Contacto" data-en="Contact">Contacto</a></li>
             </ul>
         </nav>
     </header>
 
-    <!-- Sección Principal (Hero) -->
+    <!-- Hero -->
     <section id="inicio" class="hero-section">
         <div class="hero-content">
             <h1 data-es="Tu Destino con la Puntualidad y Confort que Mereces" data-en="Your Destination with the Punctuality and Comfort You Deserve">Tu Destino con la Puntualidad y Confort que Mereces</h1>
-            <p data-es="Servicio de transporte privado exclusivo y personalizado. Experiencia de primer nivel, seguridad garantizada y atención directa con conductor bilingüe." data-en="Exclusive and personalized private transportation service. First-class experience, guaranteed safety, and direct attention with a bilingual driver.">Servicio de transporte privado exclusivo y personalizado. Experiencia de primer nivel, seguridad garantizada y atención directa con conductor bilingüe.</p>
-            <a href="https://wa.me/573176653331?text=Hola,%20me%20gustaría%20cotizar%20un%20servicio%20con%20AG%20Executive%20Driver." target="_blank" class="btn-primary" id="whatsapp-hero">
-                <i class="fab fa-whatsapp"></i> <span data-es="Cotizar por WhatsApp" data-en="Quote via WhatsApp">Cotizar por WhatsApp</span>
-            </a>
+            <p data-es="Servicio de transporte privado exclusivo. Cotiza tu ruta en tiempo real y programa tu viaje de forma inmediata." data-en="Exclusive private transport service. Quote your route in real time and schedule your ride immediately.">Servicio de transporte privado exclusivo. Cotiza tu ruta en tiempo real y programa tu viaje de forma inmediata.</p>
+            <a href="#cotizador" class="btn-primary" data-es="Cotizar Viaje Ahora" data-en="Calculate Fare Now">Cotizar Viaje Ahora</a>
         </div>
     </section>
 
-    <!-- Sección de Servicios -->
+    <!-- NUEVA SECCIÓN: CALCULADORA DE TARIFA EN TIEMPO REAL -->
+    <section id="cotizador" class="calculator-section">
+        <div class="calculator-container">
+            <h2 data-es="Calcula el Valor de tu Viaje" data-en="Calculate Your Trip Fare">Calcula el Valor de tu Viaje</h2>
+            <p class="section-subtitle" data-es="Ingresa tu origen, destino y detalles para obtener un estimado al instante." data-en="Enter your origin, destination, and details to get an instant estimate.">Ingresa tu origen, destino y detalles para obtener un estimado al instante.</p>
+
+            <form id="calc-form" class="calc-form">
+                <div class="input-group">
+                    <label data-es="Punto de Origen:" data-en="Origin:">Punto de Origen:</label>
+                    <input type="text" id="origin-input" placeholder="Ej: San Fernando, Cali" required>
+                </div>
+
+                <div class="input-group">
+                    <label data-es="Punto de Destino:" data-en="Destination:">Punto de Destino:</label>
+                    <input type="text" id="destination-input" placeholder="Ej: Aeropuerto Alfonso Bonilla Aragón" required>
+                </div>
+
+                <div class="input-row">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="toll-check">
+                        <label for="toll-check" data-es="¿El viaje incluye peajes?" data-en="Does trip include tolls?">¿El viaje incluye peajes?</label>
+                    </div>
+
+                    <div class="input-group num-tolls-group" id="tolls-number-box" style="display: none;">
+                        <label data-es="Cantidad de Peajes:" data-en="Number of Tolls:">Cantidad de Peajes:</label>
+                        <input type="number" id="tolls-count" value="1" min="1" max="10">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-calc" data-es="Calcular Tarifa y Tiempo" data-en="Calculate Fare & Time">Calcular Tarifa y Tiempo</button>
+            </form>
+
+            <!-- Resultado de la cotización -->
+            <div id="calc-result" class="calc-result" style="display: none;">
+                <div class="result-box">
+                    <div class="result-item">
+                        <span class="label" data-es="Tiempo Estimado:" data-en="Estimated Time:">Tiempo Estimado:</span>
+                        <span id="res-time" class="value">-- min</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label" data-es="Distancia Total:" data-en="Total Distance:">Distancia Total:</span>
+                        <span id="res-distance" class="value">-- km</span>
+                    </div>
+                    <div class="result-item highlight">
+                        <span class="label" data-es="Tarifa Estimada:" data-en="Estimated Fare:">Tarifa Estimada:</span>
+                        <span id="res-price" class="value-price">$0 COP</span>
+                    </div>
+                </div>
+                <button id="btn-book-whatsapp" class="btn-primary whatsapp-book-btn">
+                    <i class="fab fa-whatsapp"></i> <span data-es="Reservar este Viaje por WhatsApp" data-en="Book this Trip via WhatsApp">Reservar este Viaje por WhatsApp</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Servicios -->
     <section id="servicios" class="services-section">
         <h2 data-es="Servicios Premium Personalizados" data-en="Custom Premium Services">Servicios Premium Personalizados</h2>
-        <p class="section-subtitle">Premium private transport for every journey</p>
         <div class="services-container">
             <div class="service-card">
                 <div class="icon-box"><i class="fas fa-map-marked-alt"></i></div>
                 <h3 data-es="Traslados Intermunicipales" data-en="Intercity Transfers">Traslados Intermunicipales</h3>
-                <p data-es="Viajes cómodos y seguros entre ciudades con rutas optimizadas para garantizar tu tranquilidad y puntualidad." data-en="Comfortable and safe travel between cities with optimized routes to ensure your peace of mind and punctuality.">Viajes cómodos y seguros entre ciudades con rutas optimizadas para garantizar tu tranquilidad y puntualidad.</p>
+                <p data-es="Viajes cómodos y seguros entre ciudades con rutas optimizadas." data-en="Comfortable and safe travel between cities with optimized routes.">Viajes cómodos y seguros entre ciudades con rutas optimizadas.</p>
             </div>
             <div class="service-card">
                 <div class="icon-box"><i class="fas fa-plane"></i></div>
                 <h3 data-es="Transfer Aeropuerto" data-en="Airport Transfer">Transfer Aeropuerto</h3>
-                <p data-es="Monitoreo de vuelos en tiempo real para asegurar tu recogida o llegada a tiempo, sin ningún tipo de estrés." data-en="Real-time flight monitoring to ensure your pickup or arrival on time, completely stress-free.">Monitoreo de vuelos en tiempo real para asegurar tu recogida o llegada a tiempo, sin ningún tipo de estrés.</p>
+                <p data-es="Monitoreo de vuelos en tiempo real para asegurar tu recogida a tiempo." data-en="Real-time flight monitoring to ensure your pickup on time.">Monitoreo de vuelos en tiempo real para asegurar tu recogida a tiempo.</p>
             </div>
             <div class="service-card">
                 <div class="icon-box"><i class="fas fa-road"></i></div>
                 <h3 data-es="Disposiciones por Horas" data-en="Hourly Disposition">Disposiciones por Horas</h3>
-                <p data-es="Un conductor profesional a tu total disposición el tiempo que lo requieras para tus trayectos corporativos o urbanos." data-en="A professional driver at your complete disposal for as long as you require for your corporate or urban journeys.">Un conductor profesional a tu total disposición el tiempo que lo requieras para tus trayectos corporativos o urbanos.</p>
+                <p data-es="Conductor profesional bilingüe a tu disposición el tiempo necesario." data-en="Professional bilingual driver at your service as long as needed.">Conductor profesional bilingüe a tu disposición el tiempo necesario.</p>
             </div>
         </div>
     </section>
 
-    <!-- Sección de Beneficios -->
-    <section id="beneficios" class="benefits-section">
-        <div class="benefits-content">
-            <h2 data-es="¿Por qué elegir AG Executive Driver?" data-en="Why Choose AG Executive Driver?">¿Por qué elegir AG Executive Driver?</h2>
-            <ul class="benefits-list">
-                <li>
-                    <i class="fas fa-check-circle"></i>
-                    <div>
-                        <strong data-es="Atención Directa y Exclusiva:" data-en="Direct & Exclusive Attention:">Atención Directa y Exclusiva:</strong> 
-                        <span data-es="Gestionado e impulsado por su propio dueño. Te garantizo discreción absoluta, fluidez bilingüe y conducción defensiva en cada viaje." data-en="Managed and driven by its owner. I guarantee absolute discretion, bilingual fluency, and defensive driving on every trip.">Gestionado e impulsado por su propio dueño. Te garantizo discreción absoluta, fluidez bilingüe y conducción defensiva en cada viaje.</span>
-                    </div>
-                </li>
-                <li>
-                    <i class="fas fa-check-circle"></i>
-                    <div>
-                        <strong data-es="Vehículo Confortable de Última Generación:" data-en="Next-Generation Comfortable Vehicle:">Vehículo Confortable de Última Generación:</strong> 
-                        <span data-es="Viaja a bordo de un moderno Renault Kwid 2026, una unidad climatizada, impecable y equipada para tu máxima comodidad." data-en="Travel aboard a modern 2026 Renault Kwid, a climate-controlled, pristine unit equipped for your maximum comfort.">Viaja a bordo de un moderno Renault Kwid 2026, una unidad climatizada, impecable y equipada para tu máxima comodidad.</span>
-                    </div>
-                </li>
-                <li>
-                    <i class="fas fa-check-circle"></i>
-                    <div>
-                        <strong data-es="Seguridad Integral:" data-en="Comprehensive Safety:">Seguridad Integral:</strong> 
-                        <span data-es="Cumplimiento estricto de protocolos viales y monitoreo constante de ruta para tu total respaldo." data-en="Strict compliance with road protocols and constant route monitoring for your total peace of mind.">Cumplimiento estricto de protocolos viales y monitoreo constante de ruta para tu total respaldo.</span>
-                    </div>
-                </li>
-                <li>
-                    <i class="fas fa-check-circle"></i>
-                    <div>
-                        <strong data-es="Disponibilidad Planificada:" data-en="Planned Availability:">Disponibilidad Planificada:</strong> 
-                        <span data-es="Agenda tus trayectos importantes con anticipación y asegura un servicio premium sin imprevistos." data-en="Schedule your important journeys in advance and secure a premium service with no unexpected surprises.">Agenda tus trayectos importantes con anticipación y asegura un servicio premium sin imprevistos.</span>
-                    </div>
-                </li>
-            </ul>
-        </div>
-    </section>
-
-    <!-- Sección Interactiva de Reseñas / Calificaciones -->
+    <!-- Reseñas Persistentes -->
     <section id="testimonios" class="reviews-section">
         <h2 data-es="Califica tu Experiencia" data-en="Rate Your Experience">Califica tu Experiencia</h2>
-        <p class="section-subtitle" data-es="Tu opinión nos ayuda a mantener el estándar premium." data-en="Your feedback helps us maintain our premium standard.">Tu opinión nos ayuda a mantener el estándar premium.</p>
+        <p class="section-subtitle" data-es="Opiniones en vivo de nuestros pasajeros ejecutivos." data-en="Live reviews from our executive passengers.">Opiniones en vivo de nuestros pasajeros ejecutivos.</p>
         
         <div class="reviews-wrapper">
-            <!-- Formulario para dejar comentarios -->
             <form id="review-form" class="review-form">
                 <div class="rating-input">
                     <label data-es="Tu Calificación:" data-en="Your Rating:">Tu Calificación:</label>
@@ -127,30 +143,27 @@
                     </div>
                 </div>
                 <input type="text" id="reviewer-name" placeholder="Tu Nombre / Name" required>
-                <textarea id="reviewer-text" rows="4" placeholder="Escribe tu comentario aquí... / Write your comment here..." required></textarea>
-                <button type="submit" class="btn-submit" data-es="Enviar Reseña" data-en="Submit Review">Enviar Reseña</button>
+                <textarea id="reviewer-text" rows="3" placeholder="Escribe tu comentario aquí... / Write your comment here..." required></textarea>
+                <button type="submit" class="btn-submit" data-es="Guardar Reseña" data-en="Submit Review">Guardar Reseña</button>
             </form>
 
-            <!-- Contenedor dinámico donde aparecerán las opiniones -->
             <div id="reviews-container" class="reviews-container">
-                <p id="no-reviews-msg" class="no-reviews" data-es="¡Sé el primero en calificar nuestro servicio!" data-en="Be the first to rate our service!">¡Sé el primero en calificar nuestro servicio!</p>
+                <p id="loading-reviews" class="no-reviews">Cargando comentarios...</p>
             </div>
         </div>
     </section>
 
-    <!-- Sección de Contacto -->
+    <!-- SECCIÓN DE CONTACTO AJUSTADA: SOLO DUDAS ADICIONALES -->
     <section id="contacto" class="cta-section">
-        <h2 data-es="¿Por qué dejar tu movilidad al azar?" data-en="Why leave your mobility to chance?">¿Por qué dejar tu movilidad al azar?</h2>
-        <p data-es="Atención personalizada e inmediata. Reserva tu trayecto de forma rápida y segura directamente conmigo." data-en="Immediate, personalized attention. Book your journey quickly and safely directly with me.">Atención personalizada e inmediata. Reserva tu trayecto de forma rápida y segura directamente conmigo.</p>
-        <a href="https://wa.me/573176653331?text=Hola,%20quiero%20programar%20un%20viaje%20con%20AG%20Executive%20Driver." target="_blank" class="btn-secondary" id="whatsapp-footer">
-            <i class="fab fa-whatsapp"></i> <span data-es="Reservar Ahora" data-en="Book Your Ride">Reservar Ahora</span>
+        <h2 data-es="¿Tienes dudas adicionales sobre tu trayecto?" data-en="Do you have additional questions about your trip?">¿Tienes dudas adicionales sobre tu trayecto?</h2>
+        <p data-es="Si requieres una cotización especial, servicio corporativo por días o consultar disponibilidad, escríbeme directamente." data-en="If you require a special quote, daily corporate service, or want to check availability, contact me directly.">Si requieres una cotización especial, servicio corporativo por días o consultar disponibilidad, escríbeme directamente.</p>
+        <a href="https://wa.me/573176653331?text=Hola,%20tengo%20una%20consulta%20adicional%20sobre%20un%20servicio%20de%20transporte." target="_blank" class="btn-secondary" id="whatsapp-footer">
+            <i class="fab fa-whatsapp"></i> <span data-es="Resolver Dudas por WhatsApp" data-en="Ask Questions via WhatsApp">Resolver Dudas por WhatsApp</span>
         </a>
     </section>
 
-    <!-- Pie de Página -->
     <footer>
         <p>&copy; 2026 AG Executive Driver. <span data-es="Todos los derechos reservados." data-en="All rights reserved.">Todos los derechos reservados.</span></p>
-        <p class="legal">Premium Private Transport for Every Journey.</p>
     </footer>
 
     <script src="script.js"></script>
