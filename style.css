@@ -652,3 +652,60 @@ footer .legal {
     .calculator-section h2, .services-section h2, .reviews-section h2 { font-size: 2rem; }
     .input-row { flex-direction: column; align-items: flex-start; }
 }
+/* --- BOTÓN Y CAMPOS DE PARADAS --- */
+.stops-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.stop-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.stop-input-row .input-icon {
+    flex: 1;
+}
+
+.btn-remove-stop {
+    background-color: #3a1515;
+    color: #ff6b6b;
+    border: 1px solid #5a2020;
+    width: 45px;
+    height: 45px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.btn-remove-stop:hover {
+    background-color: #ff6b6b;
+    color: #fff;
+}
+
+.btn-add-stop {
+    background: transparent;
+    color: var(--accent-silver);
+    border: 1px dashed var(--accent-blue);
+    padding: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s;
+}
+
+.btn-add-stop:hover {
+    border-color: var(--text-light);
+    color: var(--text-light);
+    background-color: rgba(28, 61, 90, 0.2);
+}

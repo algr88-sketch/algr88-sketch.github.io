@@ -34,105 +34,183 @@ document.addEventListener("DOMContentLoaded", () => {
     btnEs.addEventListener("click", () => changeLanguage("es"));
     btnEn.addEventListener("click", () => changeLanguage("en"));
 
-    // --- ELEMENTOS DE CALCULADORA ---
-    const originInput = document.getElementById("origin-input");
-    const destinationInput = document.getElementById("destination-input");
-    const tollCheck = document.getElementById("toll-check");
-    const tollsNumberBox = document.getElementById("tolls-number-box");
-    const tollsCount = document.getElementById("tolls-count");
-    const calcForm = document.getElementById("calc-form");
-    const calcResult = document.getElementById("calc-result");
-    const resTime = document.getElementById("res-time");
-    const resDistance = document.getElementById("res-distance");
-    const resPrice = document.getElementById("res-price");
-    const btnBookWhatsapp = document.getElementById("btn-book-whatsapp");
 
-    let calculatedTripData = null;
+    // --- CALCULADORA CON PARADAS MÚLTIPLES ---
+const originInput = document.getElementById("origin-input");
+const destinationInput = document.getElementById("destination-input");
+const stopsContainer = document.getElementById("stops-container");
+const btnAddStop = document.getElementById("btn-add-stop");
 
-    // Mostrar/ocultar casilla de peajes
-    tollCheck.addEventListener("change", () => {
-        tollsNumberBox.style.display = tollCheck.checked ? "block" : "none";
-    });
+const tollCheck = document.getElementById("toll-check");
+const tollsNumberBox = document.getElementById("tolls-number-box");
+const tollsCount = document.getElementById("tolls-count");
 
-    // Intentar activar Google Maps Autocomplete si está disponible
-    function initMapsAutocomplete() {
-        if (window.google && google.maps && google.maps.places) {
-            new google.maps.places.Autocomplete(originInput);
-            new google.maps.places.Autocomplete(destinationInput);
-        }
+const calcForm = document.getElementById("calc-form");
+const calcResult = document.getElementById("calc-result");
+const resTime = document.getElementById("res-time");
+const resDistance = document.getElementById("res-distance");
+const resPrice = document.getElementById("res-price");
+const btnBookWhatsapp = document.getElementById("btn-book-whatsapp");
+
+let calculatedTripData = null;
+
+// Mostrar/ocultar casilla de peajes
+tollCheck.addEventListener("change", () => {
+    tollsNumberBox.style.display = tollCheck.checked ? "block" : "none";
+});
+
+// Agregar Parada Dinámica (Máximo 4 paradas)
+btnAddStop.addEventListener("click", () => {
+    const currentStops = stopsContainer.querySelectorAll(".stop-input-row").length;
+    if (currentStops >= 4) {
+        alert("Puedes agregar un máximo de 4 paradas intermedias.");
+        return;
     }
-    // Ejecutar con un pequeño retraso por si el script de Google tarda en cargar
-    setTimeout(initMapsAutocomplete, 1000);
 
-    // Calcular tarifa
-    calcForm.addEventListener("submit", (e) => {
-        e.preventDefault();
+    const stopRow = document.createElement("div");
+    stopRow.className = "stop-input-row";
+    stopRow.innerHTML = `
+        <div class="input-icon">
+            <i class="fas fa-map-pin"></i>
+            <input type="text" class="stop-input" placeholder="Parada ${currentStops + 1} (Ej: Centro Comercial Chipichape)" required>
+        </div>
+        <button type="button" class="btn-remove-stop" title="Eliminar parada">
+            <i class="fas fa-trash-alt"></i>
+        </button>
+    `;
 
-        const origin = originInput.value;
-        const destination = destinationInput.value;
+    stopsContainer.appendChild(stopRow);
 
-        if (!origin || !destination) return;
+    // Habilitar autocompletado en la nueva parada
+    const newInput = stopRow.querySelector(".stop-input");
+    if (window.google && google.maps && google.maps.places) {
+        new google.maps.places.Autocomplete(newInput);
+    }
 
-        // Verificar si la API de Google Maps está bien cargada
-        if (!window.google || !google.maps || !google.maps.DistanceMatrixService) {
-            alert("Atención: La API de Google Maps no se encuentra conectada o falta configurar la API Key real en el código. Por favor verifica las credenciales de Google Cloud Console.");
-            return;
-        }
+    // Botón eliminar parada
+    stopRow.querySelector(".btn-remove-stop").addEventListener("click", () => {
+        stopRow.remove();
+        updateStopPlaceholders();
+    });
+});
 
-        const service = new google.maps.DistanceMatrixService();
-        service.getDistanceMatrix({
-            origins: [origin],
-            destinations: [destination],
-            travelMode: google.maps.TravelMode.DRIVING,
-            unitSystem: google.maps.UnitSystem.METRIC
-        }, (response, status) => {
-            if (status === "OK" && response.rows[0].elements[0].status === "OK") {
-                const result = response.rows[0].elements[0];
-                const distanceKm = result.distance.value / 1000;
-                const durationMin = Math.round(result.duration.value / 60);
+function updateStopPlaceholders() {
+    const stopInputs = stopsContainer.querySelectorAll(".stop-input");
+    stopInputs.forEach((input, index) => {
+        input.placeholder = `Parada ${index + 1} (Ej: Dirección o lugar)`;
+    });
+}
 
-                // Fórmula exactas de Excel:
-                // Tiempo Ideal = (Distancia total * 60) / 36
-                const tiempoIdeal = (distanceKm * 60) / 36;
-                
-                let cargoTiempoExtra = 0;
-                if ((durationMin - tiempoIdeal) > 0) {
-                    cargoTiempoExtra = (durationMin - tiempoIdeal) * (30000 / 60);
-                }
+// Inicializar Autocomplete inicial
+function initMapsAutocomplete() {
+    if (window.google && google.maps && google.maps.places) {
+        new google.maps.places.Autocomplete(originInput);
+        new google.maps.places.Autocomplete(destinationInput);
+    }
+}
+setTimeout(initMapsAutocomplete, 1000);
 
-                const tienePeaje = tollCheck.checked;
-                const numPeajes = tienePeaje ? (parseInt(tollsCount.value) || 1) : 0;
-                const costoPeajes = tienePeaje ? (13300 * numPeajes) : 0;
+// Calcular tarifa con Google Directions API
+calcForm.addEventListener("submit", (e) => {
+    e.preventDefault();
 
-                let tarifaTotal = (distanceKm * 2087) + cargoTiempoExtra + costoPeajes;
-                tarifaTotal = Math.round(tarifaTotal / 1000) * 1000;
+    const origin = originInput.value;
+    const destination = destinationInput.value;
 
-                resDistance.textContent = `${distanceKm.toFixed(1)} km`;
-                resTime.textContent = `${durationMin} min`;
-                resPrice.textContent = `$${tarifaTotal.toLocaleString('es-CO')} COP`;
-                calcResult.style.display = "block";
+    if (!origin || !destination) return;
 
-                calculatedTripData = {
-                    origin,
-                    destination,
-                    distanceKm: distanceKm.toFixed(1),
-                    durationMin,
-                    price: `$${tarifaTotal.toLocaleString('es-CO')} COP`
-                };
-            } else {
-                alert("No se pudo obtener la ruta entre esas dos ubicaciones. Intenta colocar la ciudad (ej: Cali, Colombia).");
+    if (!window.google || !google.maps || !google.maps.DirectionsService) {
+        alert("Atención: La API de Google Maps no está disponible. Revisa la clave API en tu proyecto.");
+        return;
+    }
+
+    // Recolectar paradas intermedias
+    const stopInputs = Array.from(stopsContainer.querySelectorAll(".stop-input"))
+        .map(input => input.value.trim())
+        .filter(val => val.length > 0);
+
+    const waypoints = stopInputs.map(stopAddr => ({
+        location: stopAddr,
+        stopover: true
+    }));
+
+    const directionsService = new google.maps.DirectionsService();
+
+    directionsService.route({
+        origin: origin,
+        destination: destination,
+        waypoints: waypoints,
+        travelMode: google.maps.TravelMode.DRIVING,
+        optimizeWaypoints: false
+    }, (result, status) => {
+        if (status === "OK") {
+            const route = result.routes[0];
+            let totalDistanceMeters = 0;
+            let totalDrivingSeconds = 0;
+
+            // Sumar distancia y tiempo de todos los tramos (legs)
+            route.legs.forEach(leg => {
+                totalDistanceMeters += leg.distance.value;
+                totalDrivingSeconds += leg.duration.value;
+            });
+
+            const distanceKm = totalDistanceMeters / 1000;
+            const drivingMin = Math.round(totalDrivingSeconds / 60);
+
+            // 5 min de espera por cada parada
+            const totalWaitMin = stopInputs.length * 5;
+            const totalDurationMin = drivingMin + totalWaitMin;
+
+            // Fórmula: Tiempo ideal a 36 km/h
+            const tiempoIdeal = (distanceKm * 60) / 36;
+
+            let cargoTiempoExtra = 0;
+            if ((totalDurationMin - tiempoIdeal) > 0) {
+                cargoTiempoExtra = (totalDurationMin - tiempoIdeal) * (35583 / 60);
             }
-        });
-    });
 
-    // Enviar resultado a WhatsApp
-    btnBookWhatsapp.addEventListener("click", () => {
-        if (!calculatedTripData) return;
-        const msg = `Hola AG Executive Driver, me gustaría reservar el siguiente viaje cotizado en la web:\n\n📍 Origen: ${calculatedTripData.origin}\n🏁 Destino: ${calculatedTripData.destination}\n📏 Distancia: ${calculatedTripData.distanceKm} km\n⏱️ Tiempo: ${calculatedTripData.durationMin} min\n💵 Valor Cotizado: ${calculatedTripData.price}`;
-        const url = `https://wa.me/573176653331?text=${encodeURIComponent(msg)}`;
-        window.open(url, "_blank");
-    });
+            const tienePeaje = tollCheck.checked;
+            const numPeajes = tienePeaje ? (parseInt(tollsCount.value) || 1) : 0;
+            const costoPeajes = tienePeaje ? (13300 * numPeajes) : 0;
 
+            let tarifaTotal = (distanceKm * 2087) + cargoTiempoExtra + costoPeajes;
+            tarifaTotal = Math.round(tarifaTotal / 1000) * 1000;
+
+            resDistance.textContent = `${distanceKm.toFixed(1)} km`;
+            resTime.textContent = `${totalDurationMin} min (${drivingMin} min viaje + ${totalWaitMin} min esperas)`;
+            resPrice.textContent = `$${tarifaTotal.toLocaleString('es-CO')} COP`;
+            calcResult.style.display = "block";
+
+            calculatedTripData = {
+                origin,
+                destination,
+                stops: stopInputs,
+                distanceKm: distanceKm.toFixed(1),
+                drivingMin,
+                totalWaitMin,
+                totalDurationMin,
+                price: `$${tarifaTotal.toLocaleString('es-CO')} COP`
+            };
+        } else {
+            alert("No se pudo calcular la ruta. Verifica que las direcciones sean correctas.");
+        }
+    });
+});
+
+// Enviar detalle completo a WhatsApp
+btnBookWhatsapp.addEventListener("click", () => {
+    if (!calculatedTripData) return;
+
+    let stopsFormatted = "";
+    if (calculatedTripData.stops.length > 0) {
+        stopsFormatted = "\n🛑 *Paradas intermedias:* \n" + calculatedTripData.stops.map((s, i) => `  ${i + 1}. ${s}`).join("\n");
+    }
+
+    const msg = `Hola AG Executive Driver, me gustaría reservar el siguiente viaje cotizado en la web:\n\n📍 *Origen:* ${calculatedTripData.origin}${stopsFormatted}\n🏁 *Destino Final:* ${calculatedTripData.destination}\n\n📏 *Distancia:* ${calculatedTripData.distanceKm} km\n⏱️ *Tiempo Estimado:* ${calculatedTripData.totalDurationMin} min (${calculatedTripData.drivingMin} min en ruta + ${calculatedTripData.totalWaitMin} min espera)\n💵 *Valor Cotizado:* ${calculatedTripData.price}`;
+
+    const url = `https://wa.me/573176653331?text=${encodeURIComponent(msg)}`;
+    window.open(url, "_blank");
+});
 
     // --- MANEJO DE RESEÑAS CON FIREBASE ---
     const starsContainer = document.getElementById("form-stars");
