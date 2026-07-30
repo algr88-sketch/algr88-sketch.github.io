@@ -709,3 +709,48 @@ footer .legal {
     color: var(--text-light);
     background-color: rgba(28, 61, 90, 0.2);
 }
+/* --- CORRECCIÓN DE ESTILO PREMIUM EN PARADAS INTERMEDIAS --- */
+
+/* Aplicar fondo negro y texto blanco a los inputs de las paradas */
+.stop-input {
+    width: 100%;
+    padding: 14px 14px 14px 45px !important; /* Espacio para el ícono */
+    background-color: #000000 !important;
+    border: 1px solid #222 !important;
+    color: #ffffff !important;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.stop-input:focus {
+    border-color: var(--accent-blue) !important;
+}
+
+/* Alineación del ícono dentro del campo de parada */
+.stop-input-row .input-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.stop-input-row .input-icon i {
+    position: absolute;
+    left: 15px;
+    color: var(--accent-silver);
+    font-size: 1rem;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* Evitar que Google Autocomplete o el navegador cambien el fondo a blanco al seleccionar */
+.stop-input:-webkit-autofill,
+.stop-input:-webkit-autofill:hover, 
+.stop-input:-webkit-autofill:focus, 
+.stop-input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #000000 inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
