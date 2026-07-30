@@ -1,7 +1,185 @@
-/* --- CALCULADORA DE TARIFAS --- */
+:root {
+    --bg-dark: #000000;       
+    --card-dark: #0b0d11;     
+    --accent-silver: #cfd4d9; 
+    --accent-blue: #1c3d5a;   
+    --accent-gold: #e6b800;   
+    --text-light: #ffffff;    
+    --text-muted: #8e9aa8;    
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+}
+
+/* --- BARRA DE NAVEGACIÓN --- */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 6%;
+    background-color: rgba(0, 0, 0, 0.95);
+    border-bottom: 2px solid var(--accent-blue);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: var(--accent-silver);
+    letter-spacing: -1px;
+}
+
+.logo span {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--text-light);
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-left: 10px;
+    border-left: 1px solid #333;
+    padding-left: 12px;
+}
+
+/* Selector de Idiomas */
+.lang-selector {
+    display: flex;
+    gap: 10px;
+    background-color: #11141a;
+    padding: 4px;
+    border-radius: 6px;
+    border: 1px solid #222;
+}
+
+.lang-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.lang-btn:hover {
+    color: var(--text-light);
+}
+
+.lang-btn.active {
+    background-color: var(--accent-blue);
+    color: var(--text-light);
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    align-items: center;
+}
+
+.nav-links li a {
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 0 18px;
+    transition: color 0.3s;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.nav-links li a:hover {
+    color: var(--text-light);
+}
+
+.btn-nav {
+    border: 1px solid var(--accent-silver);
+    padding: 8px 20px !important;
+    border-radius: 4px;
+    color: var(--accent-silver) !important;
+    transition: all 0.3s;
+}
+
+.btn-nav:hover {
+    background-color: var(--text-light);
+    color: var(--bg-dark) !important;
+    border-color: var(--text-light);
+}
+
+/* --- HERO --- */
+.hero-section {
+    height: 100vh;
+    background: linear-gradient(rgba(0, 0, 0, 0.80), rgba(0, 0, 0, 0.80)), url('./carro-principal.jpg') no-repeat center center/cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.hero-content {
+    max-width: 850px;
+    margin-top: 60px;
+}
+
+.hero-content h1 {
+    font-size: 3.2rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+}
+
+.hero-content p {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+    line-height: 1.6;
+}
+
+.btn-primary {
+    background-color: var(--accent-blue);
+    color: white;
+    padding: 16px 38px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid #28547a;
+    box-shadow: 0 4px 20px rgba(28, 61, 90, 0.4);
+    transition: transform 0.3s, background-color 0.3s;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #244e73;
+    transform: translateY(-3px);
+}
+
+/* --- CALCULADORA DE TARIFA --- */
 .calculator-section {
-    padding: 100px 6%;
-    background-color: #0b0d11;
+    padding: 110px 6% 90px;
+    background-color: #050608;
     border-bottom: 1px solid #141921;
 }
 
@@ -11,15 +189,22 @@
     text-align: center;
 }
 
+.calculator-container h2 {
+    font-size: 2.6rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
 .calc-form {
-    background-color: #000000;
-    padding: 30px;
+    background-color: var(--card-dark);
+    padding: 35px;
     border-radius: 8px;
     border: 1px solid #1c3d5a;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 22px;
     text-align: left;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
 .input-group label {
@@ -30,14 +215,37 @@
     font-weight: 600;
 }
 
+.input-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon i {
+    position: absolute;
+    left: 15px;
+    color: var(--accent-silver);
+    font-size: 1rem;
+}
+
+.input-icon input {
+    padding-left: 45px !important;
+}
+
 .input-group input[type="text"], .input-group input[type="number"] {
     width: 100%;
-    padding: 12px;
-    background-color: #11141a;
+    padding: 14px;
+    background-color: #000000;
     border: 1px solid #222;
     color: #fff;
     border-radius: 4px;
-    font-size: 1rem;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.input-group input:focus {
+    border-color: var(--accent-blue);
 }
 
 .input-row {
@@ -59,17 +267,22 @@
     width: 18px;
     height: 18px;
     accent-color: var(--accent-blue);
+    cursor: pointer;
 }
 
 .btn-calc {
     background-color: var(--accent-blue);
     color: white;
-    padding: 14px;
+    padding: 16px;
     border: none;
     border-radius: 4px;
     font-weight: 700;
     cursor: pointer;
     font-size: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
     transition: background 0.3s;
 }
 
@@ -77,13 +290,13 @@
     background-color: #244e73;
 }
 
-/* Resultado */
+/* Resultados de Cotización */
 .calc-result {
     margin-top: 30px;
-    background-color: #050608;
+    background-color: var(--card-dark);
     border: 1px solid var(--accent-silver);
     border-radius: 8px;
-    padding: 25px;
+    padding: 30px;
     animation: fadeIn 0.4s ease-in-out;
 }
 
@@ -105,6 +318,8 @@
 .result-item .label {
     font-size: 0.85rem;
     color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .result-item .value {
@@ -114,7 +329,7 @@
 }
 
 .result-item.highlight .value-price {
-    font-size: 1.8rem;
+    font-size: 1.9rem;
     font-weight: 800;
     color: #25d366;
 }
@@ -122,4 +337,318 @@
 .whatsapp-book-btn {
     width: 100%;
     justify-content: center;
+    background-color: #25d366 !important;
+    border-color: #25d366 !important;
+    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.3) !important;
+}
+
+.whatsapp-book-btn:hover {
+    background-color: #20ba5a !important;
+}
+
+/* --- SERVICIOS --- */
+.services-section {
+    padding: 110px 6%;
+    text-align: center;
+    background-color: var(--bg-dark);
+}
+
+.services-section h2 {
+    font-size: 2.6rem;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.section-subtitle {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    margin-bottom: 50px;
+}
+
+.services-container {
+    display: flex;
+    justify-content: center;
+    gap: 35px;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.service-card {
+    background: var(--card-dark);
+    padding: 45px 35px;
+    border-radius: 8px;
+    border: 1px solid #141921;
+    width: 360px;
+    transition: transform 0.3s, border-color 0.3s;
+}
+
+.service-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--accent-silver);
+}
+
+.icon-box {
+    font-size: 2.6rem;
+    color: var(--accent-silver);
+    margin-bottom: 25px;
+}
+
+.service-card h3 {
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.service-card p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+
+/* --- BENEFICIOS --- */
+.benefits-section {
+    padding: 110px 6%;
+    background: linear-gradient(rgba(0, 0, 0, 0.88), rgba(0, 0, 0, 0.88)), url('./interior.jpg') no-repeat center center/cover;
+    display: flex;
+    justify-content: center;
+}
+
+.benefits-content {
+    max-width: 750px;
+    width: 100%;
+}
+
+.benefits-section h2 {
+    font-size: 2.6rem;
+    margin-bottom: 50px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.benefits-list {
+    list-style: none;
+}
+
+.benefits-list li {
+    font-size: 1.1rem;
+    margin-bottom: 25px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 15px;
+    line-height: 1.6;
+}
+
+.benefits-list li i {
+    color: var(--accent-silver);
+    font-size: 1.4rem;
+    margin-top: 3px;
+}
+
+.benefits-list strong {
+    color: var(--accent-silver);
+    font-weight: 700;
+}
+
+/* --- RESEÑAS --- */
+.reviews-section {
+    padding: 110px 6%;
+    text-align: center;
+    background-color: #050608;
+}
+
+.reviews-section h2 {
+    font-size: 2.6rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.reviews-wrapper {
+    max-width: 700px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.review-form {
+    background-color: var(--card-dark);
+    border: 1px solid #141921;
+    padding: 35px;
+    border-radius: 8px;
+    text-align: left;
+}
+
+.rating-input {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.rating-input label {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--accent-silver);
+}
+
+.star-rating {
+    display: flex;
+    gap: 5px;
+}
+
+.star-rating i {
+    font-size: 1.3rem;
+    color: #4a5563; 
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.star-rating i.fas {
+    color: var(--accent-gold); 
+}
+
+.review-form input, .review-form textarea {
+    width: 100%;
+    background-color: #000;
+    border: 1px solid #222;
+    border-radius: 4px;
+    padding: 12px 15px;
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.review-form input:focus, .review-form textarea:focus {
+    border-color: var(--accent-blue);
+}
+
+.btn-submit {
+    background-color: var(--accent-blue);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-submit:hover {
+    background-color: #244e73;
+}
+
+.reviews-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: left;
+}
+
+.no-reviews {
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+.review-card {
+    background-color: var(--card-dark);
+    border: 1px solid #141921;
+    padding: 25px;
+    border-radius: 6px;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.stars {
+    color: var(--accent-gold);
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+}
+
+.review-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--accent-silver);
+    font-style: italic;
+    margin-bottom: 12px;
+}
+
+.review-author {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+/* --- CONTACTO --- */
+.cta-section {
+    padding: 100px 6%;
+    text-align: center;
+    background-color: var(--card-dark);
+    border-top: 1px solid #141921;
+}
+
+.cta-section h2 {
+    font-size: 2.3rem;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.cta-section p {
+    color: var(--text-muted);
+    margin-bottom: 35px;
+    font-size: 1.1rem;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: white;
+    border: 2px solid #25d366;
+    padding: 15px 40px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+    background-color: #25d366;
+    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.35);
+    transform: translateY(-3px);
+}
+
+footer {
+    background-color: var(--bg-dark);
+    border-top: 1px solid #141921;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 0.9rem;
+}
+
+footer .legal {
+    font-size: 0.8rem;
+    margin-top: 8px;
+    color: #4a5563;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .nav-links { display: none; }
+    .hero-content h1 { font-size: 2.2rem; }
+    .calculator-section h2, .services-section h2, .reviews-section h2 { font-size: 2rem; }
+    .input-row { flex-direction: column; align-items: flex-start; }
 }

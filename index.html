@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AG Executive Driver | Transporte Ejecutivo Privado</title>
     
+    <!-- Fuentes de Lujo -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700&display=swap" rel="stylesheet">
@@ -16,12 +17,12 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-    <!-- Google Maps API (Reemplaza TU_API_KEY_AQUI por tu clave de Google Cloud) -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAznNGMMhGUalXVZwQZTeH88q37nxHH6Is&libraries=places"></script>
+    <!-- Google Maps API (Reemplaza TU_API_KEY_DE_GOOGLE con tu clave real de Google Cloud) -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAznNGMMhGUalXVZwQZTeH88q37nxHH6Is&libraries=places" async defer></script>
 </head>
 <body>
 
-    <!-- Header -->
+    <!-- Header / Navbar -->
     <header>
         <nav class="navbar">
             <div class="logo">AG <span>Executive Driver</span></div>
@@ -33,36 +34,45 @@
                 <li><a href="#inicio" data-es="Inicio" data-en="Home">Inicio</a></li>
                 <li><a href="#cotizador" data-es="Cotizar" data-en="Estimate">Cotizar</a></li>
                 <li><a href="#servicios" data-es="Servicios" data-en="Services">Servicios</a></li>
+                <li><a href="#beneficios" data-es="Beneficios" data-en="Benefits">Beneficios</a></li>
                 <li><a href="#testimonios" data-es="Reseñas" data-en="Reviews">Reseñas</a></li>
                 <li><a href="#contacto" class="btn-nav" data-es="Contacto" data-en="Contact">Contacto</a></li>
             </ul>
         </nav>
     </header>
 
-    <!-- Hero -->
+    <!-- Hero Section -->
     <section id="inicio" class="hero-section">
         <div class="hero-content">
             <h1 data-es="Tu Destino con la Puntualidad y Confort que Mereces" data-en="Your Destination with the Punctuality and Comfort You Deserve">Tu Destino con la Puntualidad y Confort que Mereces</h1>
-            <p data-es="Servicio de transporte privado exclusivo. Cotiza tu ruta en tiempo real y programa tu viaje de forma inmediata." data-en="Exclusive private transport service. Quote your route in real time and schedule your ride immediately.">Servicio de transporte privado exclusivo. Cotiza tu ruta en tiempo real y programa tu viaje de forma inmediata.</p>
-            <a href="#cotizador" class="btn-primary" data-es="Cotizar Viaje Ahora" data-en="Calculate Fare Now">Cotizar Viaje Ahora</a>
+            <p data-es="Servicio de transporte privado exclusivo. Cotiza tu ruta en tiempo real con nuestra tarifa transparente y agenda tu viaje de inmediato." data-en="Exclusive private transport service. Quote your route in real time with our transparent fare and book immediately.">Servicio de transporte privado exclusivo. Cotiza tu ruta en tiempo real con nuestra tarifa transparente y agenda tu viaje de inmediato.</p>
+            <a href="#cotizador" class="btn-primary" data-es="Cotizar Viaje Ahora" data-en="Calculate Fare Now">
+                <i class="fas fa-calculator"></i> <span data-es="Cotizar Viaje Ahora" data-en="Calculate Fare Now">Cotizar Viaje Ahora</span>
+            </a>
         </div>
     </section>
 
-    <!-- NUEVA SECCIÓN: CALCULADORA DE TARIFA EN TIEMPO REAL -->
+    <!-- CALCULADORA DE TARIFA EXECUTIVE -->
     <section id="cotizador" class="calculator-section">
         <div class="calculator-container">
-            <h2 data-es="Calcula el Valor de tu Viaje" data-en="Calculate Your Trip Fare">Calcula el Valor de tu Viaje</h2>
-            <p class="section-subtitle" data-es="Ingresa tu origen, destino y detalles para obtener un estimado al instante." data-en="Enter your origin, destination, and details to get an instant estimate.">Ingresa tu origen, destino y detalles para obtener un estimado al instante.</p>
+            <h2 data-es="Calcula la Tarifa de tu Viaje" data-en="Calculate Your Trip Fare">Calcula la Tarifa de tu Viaje</h2>
+            <p class="section-subtitle" data-es="Ingresa origen y destino para obtener una cotización automática e inmediata." data-en="Enter origin and destination for an instant automatic quote.">Ingresa origen y destino para obtener una cotización automática e inmediata.</p>
 
             <form id="calc-form" class="calc-form">
                 <div class="input-group">
                     <label data-es="Punto de Origen:" data-en="Origin:">Punto de Origen:</label>
-                    <input type="text" id="origin-input" placeholder="Ej: San Fernando, Cali" required>
+                    <div class="input-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <input type="text" id="origin-input" placeholder="Ej: San Fernando, Cali" required>
+                    </div>
                 </div>
 
                 <div class="input-group">
                     <label data-es="Punto de Destino:" data-en="Destination:">Punto de Destino:</label>
-                    <input type="text" id="destination-input" placeholder="Ej: Aeropuerto Alfonso Bonilla Aragón" required>
+                    <div class="input-icon">
+                        <i class="fas fa-flag-checkered"></i>
+                        <input type="text" id="destination-input" placeholder="Ej: Aeropuerto Alfonso Bonilla Aragón" required>
+                    </div>
                 </div>
 
                 <div class="input-row">
@@ -72,27 +82,28 @@
                     </div>
 
                     <div class="input-group num-tolls-group" id="tolls-number-box" style="display: none;">
-                        <label data-es="Cantidad de Peajes:" data-en="Number of Tolls:">Cantidad de Peajes:</label>
+                        <label data-es="Número de Peajes:" data-en="Number of Tolls:">Número de Peajes:</label>
                         <input type="number" id="tolls-count" value="1" min="1" max="10">
                     </div>
                 </div>
 
-                <button type="submit" class="btn-calc" data-es="Calcular Tarifa y Tiempo" data-en="Calculate Fare & Time">Calcular Tarifa y Tiempo</button>
+                <button type="submit" class="btn-calc" data-es="Calcular Tarifa y Tiempo" data-en="Calculate Fare & Time">
+                    <i class="fas fa-route"></i> <span data-es="Calcular Tarifa y Tiempo" data-en="Calculate Fare & Time">Calcular Tarifa y Tiempo</span>
+                </button>
             </form>
 
-            <!-- Resultado de la cotización -->
             <div id="calc-result" class="calc-result" style="display: none;">
                 <div class="result-box">
                     <div class="result-item">
-                        <span class="label" data-es="Tiempo Estimado:" data-en="Estimated Time:">Tiempo Estimado:</span>
-                        <span id="res-time" class="value">-- min</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="label" data-es="Distancia Total:" data-en="Total Distance:">Distancia Total:</span>
+                        <span class="label" data-es="Distancia Estimada" data-en="Estimated Distance">Distancia Estimada</span>
                         <span id="res-distance" class="value">-- km</span>
                     </div>
+                    <div class="result-item">
+                        <span class="label" data-es="Tiempo Estimado" data-en="Estimated Time">Tiempo Estimado</span>
+                        <span id="res-time" class="value">-- min</span>
+                    </div>
                     <div class="result-item highlight">
-                        <span class="label" data-es="Tarifa Estimada:" data-en="Estimated Fare:">Tarifa Estimada:</span>
+                        <span class="label" data-es="Tarifa Estimada" data-en="Estimated Fare">Tarifa Estimada</span>
                         <span id="res-price" class="value-price">$0 COP</span>
                     </div>
                 </div>
@@ -103,32 +114,63 @@
         </div>
     </section>
 
-    <!-- Servicios -->
+    <!-- Sección de Servicios -->
     <section id="servicios" class="services-section">
         <h2 data-es="Servicios Premium Personalizados" data-en="Custom Premium Services">Servicios Premium Personalizados</h2>
+        <p class="section-subtitle">Premium private transport for every journey</p>
         <div class="services-container">
             <div class="service-card">
                 <div class="icon-box"><i class="fas fa-map-marked-alt"></i></div>
                 <h3 data-es="Traslados Intermunicipales" data-en="Intercity Transfers">Traslados Intermunicipales</h3>
-                <p data-es="Viajes cómodos y seguros entre ciudades con rutas optimizadas." data-en="Comfortable and safe travel between cities with optimized routes.">Viajes cómodos y seguros entre ciudades con rutas optimizadas.</p>
+                <p data-es="Viajes cómodos y seguros entre ciudades con rutas optimizadas para garantizar tu tranquilidad y puntualidad." data-en="Comfortable and safe travel between cities with optimized routes to ensure your peace of mind and punctuality.">Viajes cómodos y seguros entre ciudades con rutas optimizadas para garantizar tu tranquilidad y puntualidad.</p>
             </div>
             <div class="service-card">
                 <div class="icon-box"><i class="fas fa-plane"></i></div>
                 <h3 data-es="Transfer Aeropuerto" data-en="Airport Transfer">Transfer Aeropuerto</h3>
-                <p data-es="Monitoreo de vuelos en tiempo real para asegurar tu recogida a tiempo." data-en="Real-time flight monitoring to ensure your pickup on time.">Monitoreo de vuelos en tiempo real para asegurar tu recogida a tiempo.</p>
+                <p data-es="Monitoreo de vuelos en tiempo real para asegurar tu recogida o llegada a tiempo, sin ningún tipo de estrés." data-en="Real-time flight monitoring to ensure your pickup or arrival on time, completely stress-free.">Monitoreo de vuelos en tiempo real para asegurar tu recogida o llegada a tiempo, sin ningún tipo de estrés.</p>
             </div>
             <div class="service-card">
                 <div class="icon-box"><i class="fas fa-road"></i></div>
                 <h3 data-es="Disposiciones por Horas" data-en="Hourly Disposition">Disposiciones por Horas</h3>
-                <p data-es="Conductor profesional bilingüe a tu disposición el tiempo necesario." data-en="Professional bilingual driver at your service as long as needed.">Conductor profesional bilingüe a tu disposición el tiempo necesario.</p>
+                <p data-es="Un conductor profesional a tu total disposición el tiempo que lo requieras para tus trayectos corporativos o urbanos." data-en="A professional driver at your complete disposal for as long as you require for your corporate or urban journeys.">Un conductor profesional a tu total disposición el tiempo que lo requieras para tus trayectos corporativos o urbanos.</p>
             </div>
         </div>
     </section>
 
-    <!-- Reseñas Persistentes -->
+    <!-- Sección de Beneficios -->
+    <section id="beneficios" class="benefits-section">
+        <div class="benefits-content">
+            <h2 data-es="¿Por qué elegir AG Executive Driver?" data-en="Why Choose AG Executive Driver?">¿Por qué elegir AG Executive Driver?</h2>
+            <ul class="benefits-list">
+                <li>
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <strong data-es="Atención Directa y Exclusiva:" data-en="Direct & Exclusive Attention:">Atención Directa y Exclusiva:</strong> 
+                        <span data-es="Gestionado e impulsado por su propio dueño. Garantizo discreción absoluta, fluidez bilingüe y conducción defensiva." data-en="Managed and driven by its owner. I guarantee absolute discretion, bilingual fluency, and defensive driving.">Gestionado e impulsado por su propio dueño. Garantizo discreción absoluta, fluidez bilingüe y conducción defensiva.</span>
+                    </div>
+                </li>
+                <li>
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <strong data-es="Vehículo Confortable de Última Generación:" data-en="Next-Generation Comfortable Vehicle:">Vehículo Confortable de Última Generación:</strong> 
+                        <span data-es="Viaja a bordo de un moderno Renault Kwid 2026, una unidad climatizada, impecable y equipada para tu máxima comodidad." data-en="Travel aboard a modern 2026 Renault Kwid, a climate-controlled, pristine unit equipped for your maximum comfort.">Viaja a bordo de un moderno Renault Kwid 2026, una unidad climatizada, impecable y equipada para tu máxima comodidad.</span>
+                    </div>
+                </li>
+                <li>
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <strong data-es="Seguridad Integral:" data-en="Comprehensive Safety:">Seguridad Integral:</strong> 
+                        <span data-es="Cumplimiento estricto de protocolos viales y monitoreo constante de ruta para tu total respaldo." data-en="Strict compliance with road protocols and constant route monitoring for your total peace of mind.">Cumplimiento estricto de protocolos viales y monitoreo constante de ruta para tu total respaldo.</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Sección de Reseñas Persistentes (Firebase) -->
     <section id="testimonios" class="reviews-section">
         <h2 data-es="Califica tu Experiencia" data-en="Rate Your Experience">Califica tu Experiencia</h2>
-        <p class="section-subtitle" data-es="Opiniones en vivo de nuestros pasajeros ejecutivos." data-en="Live reviews from our executive passengers.">Opiniones en vivo de nuestros pasajeros ejecutivos.</p>
+        <p class="section-subtitle" data-es="Opiniones en tiempo real de nuestros clientes." data-en="Real-time reviews from our clients.">Opiniones en tiempo real de nuestros clientes.</p>
         
         <div class="reviews-wrapper">
             <form id="review-form" class="review-form">
@@ -148,22 +190,24 @@
             </form>
 
             <div id="reviews-container" class="reviews-container">
-                <p id="loading-reviews" class="no-reviews">Cargando comentarios...</p>
+                <p id="loading-reviews" class="no-reviews" data-es="Cargando comentarios..." data-en="Loading reviews...">Cargando comentarios...</p>
             </div>
         </div>
     </section>
 
-    <!-- SECCIÓN DE CONTACTO AJUSTADA: SOLO DUDAS ADICIONALES -->
+    <!-- Sección de Contacto (Preguntas / WhatsApp) -->
     <section id="contacto" class="cta-section">
-        <h2 data-es="¿Tienes dudas adicionales sobre tu trayecto?" data-en="Do you have additional questions about your trip?">¿Tienes dudas adicionales sobre tu trayecto?</h2>
+        <h2 data-es="¿Tienes dudas adicionales sobre tu viaje?" data-en="Do you have additional questions about your trip?">¿Tienes dudas adicionales sobre tu viaje?</h2>
         <p data-es="Si requieres una cotización especial, servicio corporativo por días o consultar disponibilidad, escríbeme directamente." data-en="If you require a special quote, daily corporate service, or want to check availability, contact me directly.">Si requieres una cotización especial, servicio corporativo por días o consultar disponibilidad, escríbeme directamente.</p>
         <a href="https://wa.me/573176653331?text=Hola,%20tengo%20una%20consulta%20adicional%20sobre%20un%20servicio%20de%20transporte." target="_blank" class="btn-secondary" id="whatsapp-footer">
             <i class="fab fa-whatsapp"></i> <span data-es="Resolver Dudas por WhatsApp" data-en="Ask Questions via WhatsApp">Resolver Dudas por WhatsApp</span>
         </a>
     </section>
 
+    <!-- Pie de Página -->
     <footer>
         <p>&copy; 2026 AG Executive Driver. <span data-es="Todos los derechos reservados." data-en="All rights reserved.">Todos los derechos reservados.</span></p>
+        <p class="legal">Premium Private Transport for Every Journey.</p>
     </footer>
 
     <script src="script.js"></script>
