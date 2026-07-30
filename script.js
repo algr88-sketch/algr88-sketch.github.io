@@ -92,12 +92,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 const durationMin = Math.round(result.duration.value / 60);
 
                 // Fórmula exactas de Excel:
-                // Tiempo Ideal = (Distancia total * 60) / 50
-                const tiempoIdeal = (distanceKm * 60) / 50;
+                // Tiempo Ideal = (Distancia total * 60) / 36
+                const tiempoIdeal = (distanceKm * 60) / 36;
                 
                 let cargoTiempoExtra = 0;
                 if ((durationMin - tiempoIdeal) > 0) {
-                    cargoTiempoExtra = (durationMin - tiempoIdeal) * (35583 / 60);
+                    cargoTiempoExtra = (durationMin - tiempoIdeal) * (30000 / 60);
                 }
 
                 const tienePeaje = tollCheck.checked;
