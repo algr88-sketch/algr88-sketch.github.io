@@ -66,6 +66,7 @@
                         <input type="text" id="origin-input" placeholder="Ej: San Fernando, Cali" required>
                     </div>
                 </div>
+
 <!-- NUEVO: Contenedor Dinámico de Paradas -->
                     <div id="stops-container" class="stops-container"></div>
                     <button type="button" id="btn-add-stop" class="btn-add-stop">
@@ -112,13 +113,132 @@
                         <span id="res-price" class="value-price">$0 COP</span>
                     </div>
                 </div>
-                <button id="btn-book-whatsapp" class="btn-primary whatsapp-book-btn">
-                    <i class="fab fa-whatsapp"></i> <span data-es="Reservar este Viaje por WhatsApp" data-en="Book this Trip via WhatsApp">Reservar este Viaje por WhatsApp</span>
-                </button>
             </div>
         </div>
     </section>
 
+<!-- SECCIÓN DE FACTURACIÓN Y PAGO -->
+<section id="invoice-section" class="invoice-section" style="display: none;">
+    <!-- Factura / Invoice -->
+    <div class="invoice-card">
+        <div class="invoice-header">
+            <div class="brand-info">
+                <h3>AG EXECUTIVE DRIVER</h3>
+                <p>Servicio Ejecutivo de Transporte Privado</p>
+            </div>
+            <div class="invoice-meta">
+                <span class="invoice-badge">COTIZACIÓN / FACTURA</span>
+                <p class="invoice-number">N° <span id="inv-consecutive">AG-INV-1001</span></p>
+                <p class="invoice-date" id="inv-date"></p>
+            </div>
+        </div>
+
+        <hr class="invoice-divider">
+
+        <div class="invoice-details">
+            <div class="detail-row">
+                <span><i class="fas fa-map-marker-alt"></i> Origen:</span>
+                <strong id="inv-origin">-</strong>
+            </div>
+            
+            <div id="inv-stops-container"></div>
+
+            <div class="detail-row">
+                <span><i class="fas fa-flag-checkered"></i> Destino Final:</span>
+                <strong id="inv-destination">-</strong>
+            </div>
+
+            <div class="detail-row">
+                <span><i class="fas fa-road"></i> Distancia Total:</span>
+                <strong id="inv-distance">-</strong>
+            </div>
+
+            <div class="detail-row">
+                <span><i class="fas fa-clock"></i> Tiempo Est. (Ruta + Espera):</span>
+                <strong id="inv-time">-</strong>
+            </div>
+        </div>
+
+        <hr class="invoice-divider">
+
+        <!-- Selección de Método de Pago -->
+        <div class="payment-selection">
+            <h4><i class="fas fa-credit-card"></i> Selecciona tu Método de Pago:</h4>
+            
+            <div class="payment-options">
+                <!-- Opción 1: Tarjeta Bold (+4%) -->
+                <label class="payment-option-card">
+                    <input type="radio" name="payment_method" value="card" id="pay-card">
+                    <div class="option-content">
+                        <div class="option-header">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Tarjeta de Crédito / Débito (Datáfono Bold)</span>
+                        </div>
+                        <small class="surcharge-tag">+4% comisión de procesamiento</small>
+                    </div>
+                </label>
+
+                <!-- Opción 2: Transferencia PSE -->
+                <label class="payment-option-card">
+                    <input type="radio" name="payment_method" value="pse" id="pay-pse">
+                    <div class="option-content">
+                        <div class="option-header">
+                            <i class="fas fa-university"></i>
+                            <span>Transferencia Bancaria en Línea (PSE / Nequi / Bancolombia)</span>
+                        </div>
+                        <small class="no-fee-tag">Sin recargo adicional</small>
+                    </div>
+                </label>
+
+                <!-- Opción 3: Efectivo o Pago al Finalizar -->
+                <label class="payment-option-card">
+                    <input type="radio" name="payment_method" value="cash" id="pay-cash" checked>
+                    <div class="option-content">
+                        <div class="option-header">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span>Pago en Efectivo / Transferencia al finalizar el viaje</span>
+                        </div>
+                        <small class="no-fee-tag">Pago directo con el conductor</small>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Desglose de Precios -->
+        <div class="invoice-summary">
+            <div class="summary-line">
+                <span>Valor Base del Viaje:</span>
+                <span id="inv-base-price">$0 COP</span>
+            </div>
+            <div class="summary-line" id="surcharge-line" style="display: none; color: #ffab40;">
+                <span>Comisión Datafono / Bold (4%):</span>
+                <span id="inv-surcharge">$0 COP</span>
+            </div>
+            <div class="summary-line total-line">
+                <span>TOTAL A PAGAR:</span>
+                <span id="inv-total-price">$0 COP</span>
+            </div>
+        </div>
+
+        <!-- Botones de Acción según método de pago -->
+        <div class="payment-actions">
+            <!-- Botón para Bold (Tarjeta) -->
+            <button id="btn-pay-bold" class="btn-action btn-bold" style="display: none;">
+                <i class="fas fa-lock"></i> Pagar con Tarjeta (Bold)
+            </button>
+
+            <!-- Botón para PSE -->
+            <button id="btn-pay-pse" class="btn-action btn-pse" style="display: none;">
+                <i class="fas fa-university"></i> Pagar con PSE / Transferencia
+            </button>
+
+            <!-- Botón para Confirmar por WhatsApp (Efectivo / Transferencia al finalizar) -->
+            <button id="btn-confirm-whatsapp" class="btn-action btn-whatsapp">
+                <i class="fab fa-whatsapp"></i> Confirmar Reserva e Invoice por WhatsApp
+            </button>
+        </div>
+    </div>
+</section>
     <!-- Sección de Servicios -->
     <section id="servicios" class="services-section">
         <h2 data-es="Servicios Premium Personalizados" data-en="Custom Premium Services">Servicios Premium Personalizados</h2>

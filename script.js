@@ -191,6 +191,13 @@ calcForm.addEventListener("submit", (e) => {
                 totalDurationMin,
                 price: `$${tarifaTotal.toLocaleString('es-CO')} COP`
             };
+
+            // --- DENTRO DE LA CALCULADORA EXISTENTE EN script.js ---
+// ... después de calcular tarifaTotal y resPrice.textContent ...
+
+// LÍNEA NUEVA PARA CONECTAR LA FACTURA:
+displayInvoice(calculatedTripData, tarifaTotal);
+
         } else {
             alert("No se pudo calcular la ruta. Verifica que las direcciones sean correctas.");
         }
@@ -289,4 +296,187 @@ btnBookWhatsapp.addEventListener("click", () => {
             });
         });
     }
+});
+// --- LÓGICA DE FACTURACIÓN Y PASARELA DE PAGOS ---
+
+// Referencias a la Invoice y Métodos de Pago
+const invoiceSection = document.getElementById("invoice-section");
+const invConsecutive = document.getElementById("inv-consecutive");
+const invDate = document.getElementById("inv-date");
+const invOrigin = document.getElementById("inv-origin");
+const invStopsContainer = document.getElementById("inv-stops-container");
+const invDestination = document.getElementById("inv-destination");
+const invDistance = document.getElementById("inv-distance");
+const invTime = document.getElementById("inv-time");
+
+const invBasePrice = document.getElementById("inv-base-price");
+const invSurcharge = document.getElementById("inv-surcharge");
+const invTotalPrice = document.getElementById("inv-total-price");
+const surchargeLine = document.getElementById("surcharge-line");
+
+const radioCard = document.getElementById("pay-card");
+const radioPse = document.getElementById("pay-pse");
+const radioCash = document.getElementById("pay-cash");
+
+const btnPayBold = document.getElementById("btn-pay-bold");
+const btnPayPse = document.getElementById("btn-pay-pse");
+const btnConfirmWhatsapp = document.getElementById("btn-confirm-whatsapp");
+
+// Generador de Consecutivo de Factura
+function getNextInvoiceNumber() {
+    let currentNumber = localStorage.getItem("ag_inv_counter") || 1000;
+    currentNumber = parseInt(currentNumber) + 1;
+    localStorage.setItem("ag_inv_counter", currentNumber);
+    return `AG-INV-${currentNumber}`;
+}
+
+let activeInvoiceData = null;
+
+// Modificación en el evento Submit de la calculadora cuando la cotización es Exitosa:
+// (Agrega estas líneas dentro del callback OK de DirectionsService):
+function displayInvoice(tripData, basePriceNumeric) {
+    const invoiceNum = getNextInvoiceNumber();
+    const today = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+    invConsecutive.textContent = invoiceNum;
+    invDate.textContent = today;
+    invOrigin.textContent = tripData.origin;
+    invDestination.textContent = tripData.destination;
+    invDistance.textContent = `${tripData.distanceKm} km`;
+    invTime.textContent = `${tripData.totalDurationMin} min (${tripData.drivingMin} min ruta + ${tripData.totalWaitMin} min espera)`;
+
+    // Renderizar paradas en la factura si existen
+    invStopsContainer.innerHTML = "";
+    if (tripData.stops && tripData.stops.length > 0) {
+        tripData.stops.forEach((stop, idx) => {
+            const stopDiv = document.createElement("div");
+            stopDiv.className = "detail-row";
+            stopDiv.innerHTML = `<span><i class="fas fa-map-pin"></i> Parada ${idx + 1}:</span> <strong>${stop}</strong>`;
+            invStopsContainer.appendChild(stopDiv);
+        });
+    }
+
+    activeInvoiceData = {
+        invoiceNum,
+        date: today,
+        tripData,
+        basePrice: basePriceNumeric,
+        selectedMethod: "cash",
+        finalTotal: basePriceNumeric,
+        surcharge: 0
+    };
+
+    updateInvoiceTotals();
+    invoiceSection.style.display = "block";
+    invoiceSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Recalcular Totales según Método de Pago seleccionado (Tarjeta +4% Bold)
+function updateInvoiceTotals() {
+    if (!activeInvoiceData) return;
+
+    const base = activeInvoiceData.basePrice;
+
+    if (radioCard.checked) {
+        // Comisión del 4% para Bold
+        const surcharge = Math.round(base * 0.04);
+        const total = base + surcharge;
+
+        activeInvoiceData.selectedMethod = "card";
+        activeInvoiceData.surcharge = surcharge;
+        activeInvoiceData.finalTotal = total;
+
+        surchargeLine.style.display = "flex";
+        invSurcharge.textContent = `$${surcharge.toLocaleString('es-CO')} COP`;
+        invTotalPrice.textContent = `$${total.toLocaleString('es-CO')} COP`;
+
+        btnPayBold.style.display = "flex";
+        btnPayPse.style.display = "none";
+        btnConfirmWhatsapp.style.display = "flex"; // También opción de enviar la factura con tarjeta reservada
+    } else if (radioPse.checked) {
+        activeInvoiceData.selectedMethod = "pse";
+        activeInvoiceData.surcharge = 0;
+        activeInvoiceData.finalTotal = base;
+
+        surchargeLine.style.display = "none";
+        invTotalPrice.textContent = `$${base.toLocaleString('es-CO')} COP`;
+
+        btnPayBold.style.display = "none";
+        btnPayPse.style.display = "flex";
+        btnConfirmWhatsapp.style.display = "flex";
+    } else {
+        // Efectivo / Transferencia al finalizar
+        activeInvoiceData.selectedMethod = "cash";
+        activeInvoiceData.surcharge = 0;
+        activeInvoiceData.finalTotal = base;
+
+        surchargeLine.style.display = "none";
+        invTotalPrice.textContent = `$${base.toLocaleString('es-CO')} COP`;
+
+        btnPayBold.style.display = "none";
+        btnPayPse.style.display = "none";
+        btnConfirmWhatsapp.style.display = "flex";
+    }
+
+    invBasePrice.textContent = `$${base.toLocaleString('es-CO')} COP`;
+}
+
+// Escuchar cambios en los radio buttons de pago
+[radioCard, radioPse, radioCash].forEach(radio => {
+    radio.addEventListener("change", updateInvoiceTotals);
+});
+
+// ACCIÓN 1: Botón Bold (Tarjeta de Crédito en Línea / Datáfono)
+btnPayBold.addEventListener("click", () => {
+    alert(`Redirigiendo a Pasarela de Pago Bold para el Invoice ${activeInvoiceData.invoiceNum}.\n\nMonto a cobrar: $${activeInvoiceData.finalTotal.toLocaleString('es-CO')} COP (Incluye 4% comisión datafono).`);
+    
+    // Aquí puedes enlazar tu Link de Pago de Bold o el SDK de Bold Checkout:
+    // window.location.href = "https://bold.co/p/tu-link-de-pago";
+});
+
+// ACCIÓN 2: Botón PSE (Transferencia Bancaria en Línea)
+btnPayPse.addEventListener("click", () => {
+    alert(`Redirigiendo a PSE / Portal de Transferencia para el Invoice ${activeInvoiceData.invoiceNum}.\n\nMonto a transferir: $${activeInvoiceData.finalTotal.toLocaleString('es-CO')} COP.`);
+    
+    // Puedes enlazar tu Link directo de PSE / Nequi / Wompi / Bold PSE:
+    // window.location.href = "https://tu-link-pse.com";
+});
+
+// ACCIÓN 3: Enviar Factura Detallada a WhatsApp
+btnConfirmWhatsapp.addEventListener("click", () => {
+    if (!activeInvoiceData) return;
+
+    let methodText = "";
+    if (activeInvoiceData.selectedMethod === "card") {
+        methodText = "💳 Tarjeta de Crédito / Débito (Bold +4%) - *Para cobrar con Datáfono o Link*";
+    } else if (activeInvoiceData.selectedMethod === "pse") {
+        methodText = "🏦 Transferencia Bancaria / PSE";
+    } else {
+        methodText = "💵 Efectivo o Transferencia al finalizar el viaje";
+    }
+
+    let stopsFormatted = "";
+    if (activeInvoiceData.tripData.stops && activeInvoiceData.tripData.stops.length > 0) {
+        stopsFormatted = "\n🛑 *Paradas intermedias:*\n" + activeInvoiceData.tripData.stops.map((s, i) => `  ${i + 1}. ${s}`).join("\n");
+    }
+
+    let invoiceMsg = `*AG EXECUTIVE DRIVER - FACTURA / INVOICE*\n` +
+        `🧾 *N° Factura:* ${activeInvoiceData.invoiceNum}\n` +
+        `📅 *Fecha:* ${activeInvoiceData.date}\n\n` +
+        `📍 *Origen:* ${activeInvoiceData.tripData.origin}${stopsFormatted}\n` +
+        `🏁 *Destino:* ${activeInvoiceData.tripData.destination}\n\n` +
+        `📏 *Distancia:* ${activeInvoiceData.tripData.distanceKm} km\n` +
+        `⏱️ *Tiempo Total:* ${activeInvoiceData.tripData.totalDurationMin} min (${activeInvoiceData.tripData.drivingMin} min ruta + ${activeInvoiceData.tripData.totalWaitMin} min espera)\n\n` +
+        `💳 *Método de Pago Seleccionado:* ${methodText}\n`;
+
+    if (activeInvoiceData.surcharge > 0) {
+        invoiceMsg += `💵 *Valor Base:* $${activeInvoiceData.basePrice.toLocaleString('es-CO')} COP\n` +
+                       `⚡ *Comisión Datafono (4%):* $${activeInvoiceData.surcharge.toLocaleString('es-CO')} COP\n`;
+    }
+
+    invoiceMsg += `💰 *TOTAL A PAGAR:* $${activeInvoiceData.finalTotal.toLocaleString('es-CO')} COP\n\n` +
+                   `Quedo atento a la confirmación de la reserva. ¡Muchas gracias!`;
+
+    const url = `https://wa.me/573176653331?text=${encodeURIComponent(invoiceMsg)}`;
+    window.open(url, "_blank");
 });
