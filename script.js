@@ -34,7 +34,159 @@ document.addEventListener("DOMContentLoaded", () => {
     btnEs.addEventListener("click", () => changeLanguage("es"));
     btnEn.addEventListener("click", () => changeLanguage("en"));
 
+// ==========================================
+// CONFIGURACIÓN DE PAGOS, CONTACTO Y CLAVE
+// ==========================================
+const CONFIG_PAGO = {
+  boldBaseUrl: "https://bold.co/p/TU_LINK_DE_BOLD", // Tu link de cobro Bold
+  pseUrl: "https://www.pse.com.co/o_tu_link_pse",  // Tu enlace PSE
+  whatsappNumber: "573176653331",                  // Tu WhatsApp (con indicativo)
+  porcentajeRecargoBold: 0.04,                      // 4%
+  adminPassword: "Olc.26colec*"                   // Cambia esta clave para acceder al panel
+};
 
+// Referencia a la BD de Firebase (asegúrate que Firebase se inicialice antes de este script)
+const db = firebase.database();
+/**
+ * Actualiza el resumen de tarifa en pantalla en caso de elegir Bold (+4%).
+ */
+function actualizarResumenPago() {
+  const metodo = document.getElementById("paymentMethod").value;
+  const tarifaBase = parseFloat(document.getElementById("tarifaBaseCalculada").value || 0);
+  const summaryDiv = document.getElementById("paymentSummary");
+
+  if (!metodo || tarifaBase <= 0) {
+    summaryDiv.innerHTML = "";
+    return;
+  }
+
+  if (metodo === "bold") {
+    const recargo = Math.round(tarifaBase * CONFIG_PAGO.porcentajeRecargoBold);
+    const totalConRecargo = tarifaBase + recargo;
+    summaryDiv.innerHTML = `
+      <div style="background-color: #fff3cd; color: #856404; padding: 10px; border-radius: 6px; font-size: 0.9em; margin-top: 10px; border: 1px solid #ffeeba;">
+        <span>Tarifa base: <strong>$${tarifaBase.toLocaleString('es-CO')} COP</strong></span><br>
+        <span>Recargo gestión en línea Bold (4%): <strong>$${recargo.toLocaleString('es-CO')} COP</strong></span><br>
+        <span style="font-size: 1.05em; color: #dc2626; display: inline-block; margin-top: 4px;">
+          Total a pagar: <strong>$${totalConRecargo.toLocaleString('es-CO')} COP</strong>
+        </span>
+      </div>`;
+  } else {
+    summaryDiv.innerHTML = `
+      <div style="background-color: #dcfce7; color: #166534; padding: 10px; border-radius: 6px; font-size: 0.9em; margin-top: 10px; border: 1px solid #bbf7d0;">
+        <span>Total a pagar: <strong>$${tarifaBase.toLocaleString('es-CO')} COP</strong></span>
+      </div>`;
+  }
+}
+
+/**
+ * Incrementa atómicamente el consecutivo en Firebase (ej: FAC-1001).
+ */
+async function obtenerSiguienteConsecutivo() {
+  const counterRef = db.ref("configuracion/ultimoConsecutivo");
+  const result = await counterRef.transaction((currentValue) => {
+    return (currentValue || 1000) + 1;
+  });
+  return `FAC-${result.snapshot.val()}`;
+}
+
+/**
+ * Guarda en Firebase, genera consecutivo y redirige a WhatsApp.
+ */
+async function procesarReservaYPago(event) {
+  if (event) event.preventDefault();
+
+  const btn = document.getElementById("btnProcesarReserva");
+  const metodo = document.getElementById("paymentMethod").value;
+  const tarifaBase = parseFloat(document.getElementById("tarifaBaseCalculada").value || 0);
+  
+  // Asegúrate que estos IDs coincidan con los de tu formulario HTML
+  const clienteNombre = document.getElementById("nombreInput")?.value || "Cliente";
+  const origen = document.getElementById("origenInput")?.value || "Origen no especificado";
+  const destino = document.getElementById("destinoInput")?.value || "Destino no especificado";
+  const fechaViaje = document.getElementById("fechaInput")?.value || "Por definir";
+
+  if (!metodo) {
+    alert("Por favor selecciona un método de pago antes de continuar.");
+    return;
+  }
+
+  try {
+    btn.disabled = true;
+    btn.innerText = "Procesando factura...";
+
+    let recargo = 0;
+    let totalFinal = tarifaBase;
+    let nombreMetodoTexto = "";
+    let enlacePago = "";
+
+    if (metodo === "bold") {
+      recargo = Math.round(tarifaBase * CONFIG_PAGO.porcentajeRecargoBold);
+      totalFinal = tarifaBase + recargo;
+      nombreMetodoTexto = "Tarjeta / Débito en línea (Bold)";
+      enlacePago = `${CONFIG_PAGO.boldBaseUrl}?amount=${totalFinal}`;
+    } else if (metodo === "pse") {
+      nombreMetodoTexto = "Transferencia en línea (PSE)";
+      enlacePago = CONFIG_PAGO.pseUrl;
+    } else if (metodo === "efectivo_destino") {
+      nombreMetodoTexto = "Efectivo o Transferencia al llegar al destino";
+      enlacePago = "Pago en destino";
+    }
+
+    const consecutivoFactura = await obtenerSiguienteConsecutivo();
+
+    // Guardar en Firebase Realtime Database
+    await db.ref(`facturas/${consecutivoFactura}`).set({
+      consecutivo: consecutivoFactura,
+      cliente: clienteNombre,
+      origen: origen,
+      destino: destino,
+      fechaViaje: fechaViaje,
+      tarifaBase: tarifaBase,
+      recargo: recargo,
+      totalPagar: totalFinal,
+      metodoPago: nombreMetodoTexto,
+      enlacePago: enlacePago,
+      estadoPago: metodo === "efectivo_destino" ? "Pendiente en Destino" : "Pendiente en Línea",
+      fechaCreacion: new Date().toLocaleString('es-CO')
+    });
+
+    // Crear mensaje de WhatsApp
+    let mensajeWA = `¡Hola AG Executive Driver! Deseo agendar el siguiente servicio:%0A%0A` +
+      `📄 *Factura N°:* ${consecutivoFactura}%0A` +
+      `👤 *Cliente:* ${encodeURIComponent(clienteNombre)}%0A` +
+      `📅 *Fecha/Hora:* ${encodeURIComponent(fechaViaje)}%0A` +
+      `📍 *Origen:* ${encodeURIComponent(origen)}%0A` +
+      `🏁 *Destino:* ${encodeURIComponent(destino)}%0A` +
+      `💳 *Método:* ${encodeURIComponent(nombreMetodoTexto)}%0A`;
+
+    if (recargo > 0) {
+      mensajeWA += `💵 *Base:* $${tarifaBase.toLocaleString('es-CO')} COP%0A` +
+        `➕ *Recargo Bold (4%):* $${recargo.toLocaleString('es-CO')} COP%0A`;
+    }
+
+    mensajeWA += `💰 *Total:* $${totalFinal.toLocaleString('es-CO')} COP%0A`;
+
+    if (metodo !== "efectivo_destino") {
+      mensajeWA += `%0A🔗 *Enlace de Pago:* ${encodeURIComponent(enlacePago)}`;
+    }
+
+    // Redirigir a WhatsApp
+    const urlWhatsApp = `https://wa.me/${CONFIG_PAGO.whatsappNumber}?text=${mensajeWA}`;
+    window.open(urlWhatsApp, '_blank');
+
+    if (metodo === "bold" || metodo === "pse") {
+      setTimeout(() => { window.open(enlacePago, '_blank'); }, 1500);
+    }
+
+  } catch (error) {
+    console.error("Error al guardar reserva:", error);
+    alert("Ocurrió un error al generar la reserva. Intenta de nuevo.");
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "Confirmar Reserva y Agendar por WhatsApp";
+  }
+}
     // --- CALCULADORA CON PARADAS MÚLTIPLES ---
 const originInput = document.getElementById("origin-input");
 const destinationInput = document.getElementById("destination-input");
@@ -480,3 +632,83 @@ btnConfirmWhatsapp.addEventListener("click", () => {
     const url = `https://wa.me/573176653331?text=${encodeURIComponent(invoiceMsg)}`;
     window.open(url, "_blank");
 });
+// ==========================================
+// FUNCIONES DEL PANEL DE ADMINISTRACIÓN
+// ==========================================
+
+function autenticarAdmin() {
+  const clave = prompt("Ingresa la contraseña de administración:");
+  if (clave === CONFIG_PAGO.adminPassword) {
+    document.getElementById("adminPanelSection").style.display = "block";
+    cargarFacturasAdmin();
+    document.getElementById("adminPanelSection").scrollIntoView({ behavior: 'smooth' });
+  } else if (clave !== null) {
+    alert("Contraseña incorrecta.");
+  }
+}
+
+function cerrarAdmin() {
+  document.getElementById("adminPanelSection").style.display = "none";
+}
+
+function cargarFacturasAdmin() {
+  const tbody = document.getElementById("listaFacturasBody");
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Cargando...</td></tr>';
+
+  db.ref("facturas").orderByKey().once("value", (snapshot) => {
+    tbody.innerHTML = "";
+    if (!snapshot.exists()) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No hay facturas registradas.</td></tr>';
+      return;
+    }
+
+    snapshot.forEach((child) => {
+      const f = child.val();
+      let badgeClass = "badge-pendiente";
+      if (f.estadoPago === "Completado") badgeClass = "badge-completado";
+      if (f.estadoPago === "Cancelado") badgeClass = "badge-cancelado";
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td><strong>${f.consecutivo}</strong></td>
+        <td><small>${f.fechaCreacion || '-'}</small></td>
+        <td>${f.cliente}</td>
+        <td><small>${f.origen} ➔ ${f.destino}</small></td>
+        <td><small>${f.metodoPago}</small></td>
+        <td><strong>$${(f.totalPagar || 0).toLocaleString('es-CO')}</strong></td>
+        <td><span class="badge ${badgeClass}">${f.estadoPago}</span></td>
+        <td>
+          <select onchange="cambiarEstadoFactura('${f.consecutivo}', this.value)" style="padding: 2px 4px; font-size: 0.8rem;">
+            <option value="">Cambiar estado...</option>
+            <option value="Completado">Marcar Completado</option>
+            <option value="Pendiente">Marcar Pendiente</option>
+            <option value="Cancelado">Marcar Cancelado</option>
+          </select>
+        </td>
+      `;
+      tbody.prepend(row); // Mostrar las más recientes arriba
+    });
+  });
+}
+
+function cambiarEstadoFactura(consecutivo, nuevoEstado) {
+  if (!nuevoEstado) return;
+  db.ref(`facturas/${consecutivo}`).update({ estadoPago: nuevoEstado }, (error) => {
+    if (!error) {
+      alert(`Factura ${consecutivo} actualizada a: ${nuevoEstado}`);
+      cargarFacturasAdmin();
+    } else {
+      alert("Error al actualizar estado.");
+    }
+  });
+}
+
+function filtrarTablaAdmin() {
+  const query = document.getElementById("adminSearchInput").value.toLowerCase();
+  const rows = document.querySelectorAll("#listaFacturasBody tr");
+
+  rows.forEach(row => {
+    const text = row.innerText.toLowerCase();
+    row.style.display = text.includes(query) ? "" : "none";
+  });
+}

@@ -220,23 +220,27 @@
             </div>
         </div>
 
-        <!-- Botones de Acción según método de pago -->
-        <div class="payment-actions">
-            <!-- Botón para Bold (Tarjeta) -->
-            <button id="btn-pay-bold" class="btn-action btn-bold" style="display: none;">
-                <i class="fas fa-lock"></i> Pagar con Tarjeta (Bold)
-            </button>
+        <!-- BLOQUE DE SELECCIÓN DE PAGO (Dentro de la sección de cotización) -->
+<div class="payment-box">
+  <label for="paymentMethod">Método de pago deseado:</label>
+  <select id="paymentMethod" onchange="actualizarResumenPago()">
+    <option value="">-- Selecciona una opción --</option>
+    <option value="pse">Transferencia en línea (Botón PSE)</option>
+    <option value="bold">Tarjeta de Crédito / Débito en línea (Bold + 4%)</option>
+    <option value="efectivo_destino">Efectivo o Transferencia al llegar al destino</option>
+  </select>
 
-            <!-- Botón para PSE -->
-            <button id="btn-pay-pse" class="btn-action btn-pse" style="display: none;">
-                <i class="fas fa-university"></i> Pagar con PSE / Transferencia
-            </button>
+  <!-- Campo oculto donde tu JavaScript actual inserta el valor calculado sin recargo -->
+  <input type="hidden" id="tarifaBaseCalculada" value="0">
 
-            <!-- Botón para Confirmar por WhatsApp (Efectivo / Transferencia al finalizar) -->
-            <button id="btn-confirm-whatsapp" class="btn-action btn-whatsapp">
-                <i class="fab fa-whatsapp"></i> Confirmar Reserva e Invoice por WhatsApp
-            </button>
-        </div>
+  <!-- Resumen dinámico con o sin recargo del 4% -->
+  <div id="paymentSummary"></div>
+
+  <!-- Botón Principal -->
+  <button id="btnProcesarReserva" onclick="procesarReservaYPago(event)" style="margin-top: 15px; width: 100%; padding: 12px; background-color: #16a34a; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem;">
+    Confirmar Reserva y Agendar por WhatsApp
+  </button>
+</div>
     </div>
 </section>
     <!-- Sección de Servicios -->
@@ -336,5 +340,46 @@
     </footer>
 
     <script src="script.js"></script>
+    <!-- BOTÓN Y CONTENEDOR DEL PANEL DE ADMINISTRACIÓN -->
+<div style="text-align: center; margin: 50px 0 20px 0;">
+  <button onclick="autenticarAdmin()" style="background: none; border: none; color: #94a3b8; font-size: 0.85rem; cursor: pointer; text-decoration: underline;">
+    🔒 Acceso Administración
+  </button>
+</div>
+
+<!-- PANEL DE ADMINISTRACIÓN (Oculto por defecto) -->
+<div id="adminPanelSection" class="admin-section" style="display: none;">
+  <div class="admin-header">
+    <h3 style="margin: 0; color: #0f172a;">📋 Historial de Facturas y Reservas</h3>
+    <button onclick="cerrarAdmin()" style="padding: 6px 12px; background-color: #ef4444; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Cerrar Panel</button>
+  </div>
+
+  <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+    <input type="text" id="adminSearchInput" onkeyup="filtrarTablaAdmin()" placeholder="Buscar por consecutivo, cliente o destino..." style="padding: 8px 12px; width: 100%; max-width: 350px; border: 1px solid #cbd5e1; border-radius: 6px;">
+    <button onclick="cargarFacturasAdmin()" style="padding: 8px 16px; background-color: #2563eb; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">🔄 Actualizar</button>
+  </div>
+
+  <div class="table-responsive">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Factura</th>
+          <th>Fecha Registro</th>
+          <th>Cliente</th>
+          <th>Ruta</th>
+          <th>Método Pago</th>
+          <th>Total COP</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="listaFacturasBody">
+        <tr>
+          <td colspan="8" style="text-align: center; color: #64748b;">Cargando registros de Firebase...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 </body>
 </html>
