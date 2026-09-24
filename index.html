@@ -13,11 +13,11 @@
     
     <link rel="stylesheet" href="style.css">
 
-    <!-- Firebase App y Database SDKs -->
+    <!-- Firebase App y Database SDKs (Compat v9) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-    <!-- Google Maps API (Reemplaza TU_API_KEY_DE_GOOGLE con tu clave real de Google Cloud) -->
+    <!-- Google Maps API -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAznNGMMhGUalXVZwQZTeH88q37nxHH6Is&libraries=places" async defer></script>
 </head>
 <body>
@@ -67,11 +67,11 @@
                     </div>
                 </div>
 
-<!-- NUEVO: Contenedor Dinámico de Paradas -->
-                    <div id="stops-container" class="stops-container"></div>
-                    <button type="button" id="btn-add-stop" class="btn-add-stop">
+                <!-- Contenedor Dinámico de Paradas -->
+                <div id="stops-container" class="stops-container"></div>
+                <button type="button" id="btn-add-stop" class="btn-add-stop">
                     <i class="fas fa-plus-circle"></i> <span data-es="+ Agregar Parada Intermedia (+5 min)" data-en="+ Add Intermediate Stop (+5 min)">+ Agregar Parada Intermedia (+5 min)</span>
-                    </button>
+                </button>
 
                 <div class="input-group">
                     <label data-es="Punto de Destino:" data-en="Destination:">Punto de Destino:</label>
@@ -117,132 +117,116 @@
         </div>
     </section>
 
-<!-- SECCIÓN DE FACTURACIÓN Y PAGO -->
-<section id="invoice-section" class="invoice-section" style="display: none;">
-    <!-- Factura / Invoice -->
-    <div class="invoice-card">
-        <div class="invoice-header">
-            <div class="brand-info">
-                <h3>AG EXECUTIVE DRIVER</h3>
-                <p>Servicio Ejecutivo de Transporte Privado</p>
-            </div>
-            <div class="invoice-meta">
-                <span class="invoice-badge">COTIZACIÓN / FACTURA</span>
-                <p class="invoice-number">N° <span id="inv-consecutive">AG-INV-1001</span></p>
-                <p class="invoice-date" id="inv-date"></p>
-            </div>
-        </div>
-
-        <hr class="invoice-divider">
-
-        <div class="invoice-details">
-            <div class="detail-row">
-                <span><i class="fas fa-map-marker-alt"></i> Origen:</span>
-                <strong id="inv-origin">-</strong>
-            </div>
-            
-            <div id="inv-stops-container"></div>
-
-            <div class="detail-row">
-                <span><i class="fas fa-flag-checkered"></i> Destino Final:</span>
-                <strong id="inv-destination">-</strong>
+    <!-- SECCIÓN DE FACTURACIÓN Y PAGO -->
+    <section id="invoice-section" class="invoice-section" style="display: none;">
+        <!-- Factura / Invoice -->
+        <div class="invoice-card">
+            <div class="invoice-header">
+                <div class="brand-info">
+                    <h3>AG EXECUTIVE DRIVER</h3>
+                    <p>Servicio Ejecutivo de Transporte Privado</p>
+                </div>
+                <div class="invoice-meta">
+                    <span class="invoice-badge">COTIZACIÓN / FACTURA</span>
+                    <p class="invoice-number">N° <span id="inv-consecutive">AG-INV-1001</span></p>
+                    <p class="invoice-date" id="inv-date"></p>
+                </div>
             </div>
 
-            <div class="detail-row">
-                <span><i class="fas fa-road"></i> Distancia Total:</span>
-                <strong id="inv-distance">-</strong>
+            <hr class="invoice-divider">
+
+            <div class="invoice-details">
+                <div class="detail-row">
+                    <span><i class="fas fa-map-marker-alt"></i> Origen:</span>
+                    <strong id="inv-origin">-</strong>
+                </div>
+                
+                <div id="inv-stops-container"></div>
+
+                <div class="detail-row">
+                    <span><i class="fas fa-flag-checkered"></i> Destino Final:</span>
+                    <strong id="inv-destination">-</strong>
+                </div>
+
+                <div class="detail-row">
+                    <span><i class="fas fa-road"></i> Distancia Total:</span>
+                    <strong id="inv-distance">-</strong>
+                </div>
+
+                <div class="detail-row">
+                    <span><i class="fas fa-clock"></i> Tiempo Est. (Ruta + Espera):</span>
+                    <strong id="inv-time">-</strong>
+                </div>
             </div>
 
-            <div class="detail-row">
-                <span><i class="fas fa-clock"></i> Tiempo Est. (Ruta + Espera):</span>
-                <strong id="inv-time">-</strong>
-            </div>
-        </div>
+            <hr class="invoice-divider">
 
-        <hr class="invoice-divider">
-
-        <!-- Selección de Método de Pago -->
-        <div class="payment-selection">
-            <h4><i class="fas fa-credit-card"></i> Selecciona tu Método de Pago:</h4>
-            
-            <div class="payment-options">
-                <!-- Opción 1: Tarjeta Bold (+4%) -->
-                <label class="payment-option-card">
-                    <input type="radio" name="payment_method" value="card" id="pay-card">
-                    <div class="option-content">
-                        <div class="option-header">
-                            <i class="fas fa-credit-card"></i>
-                            <span>Tarjeta de Crédito / Débito (Datáfono Bold)</span>
+            <!-- Selección de Método de Pago con Tarjetas/Radio -->
+            <div class="payment-selection">
+                <h4><i class="fas fa-credit-card"></i> Selecciona tu Método de Pago:</h4>
+                
+                <div class="payment-options">
+                    <!-- Opción 1: Tarjeta Bold (+4%) -->
+                    <label class="payment-option-card">
+                        <input type="radio" name="payment_method" value="bold" id="pay-card" onchange="actualizarResumenPago()">
+                        <div class="option-content">
+                            <div class="option-header">
+                                <i class="fas fa-credit-card"></i>
+                                <span>Tarjeta de Crédito / Débito (Datáfono Bold)</span>
+                            </div>
+                            <small class="surcharge-tag">+4% comisión de procesamiento</small>
                         </div>
-                        <small class="surcharge-tag">+4% comisión de procesamiento</small>
-                    </div>
-                </label>
+                    </label>
 
-                <!-- Opción 2: Transferencia PSE -->
-                <label class="payment-option-card">
-                    <input type="radio" name="payment_method" value="pse" id="pay-pse">
-                    <div class="option-content">
-                        <div class="option-header">
-                            <i class="fas fa-university"></i>
-                            <span>Transferencia Bancaria en Línea (PSE / Nequi / Bancolombia)</span>
+                    <!-- Opción 2: Transferencia PSE -->
+                    <label class="payment-option-card">
+                        <input type="radio" name="payment_method" value="pse" id="pay-pse" onchange="actualizarResumenPago()">
+                        <div class="option-content">
+                            <div class="option-header">
+                                <i class="fas fa-university"></i>
+                                <span>Transferencia Bancaria en Línea (PSE / Nequi / Bancolombia)</span>
+                            </div>
+                            <small class="no-fee-tag">Sin recargo adicional</small>
                         </div>
-                        <small class="no-fee-tag">Sin recargo adicional</small>
-                    </div>
-                </label>
+                    </label>
 
-                <!-- Opción 3: Efectivo o Pago al Finalizar -->
-                <label class="payment-option-card">
-                    <input type="radio" name="payment_method" value="cash" id="pay-cash" checked>
-                    <div class="option-content">
-                        <div class="option-header">
-                            <i class="fas fa-money-bill-wave"></i>
-                            <span>Pago en Efectivo / Transferencia al finalizar el viaje</span>
+                    <!-- Opción 3: Efectivo o Pago al Finalizar -->
+                    <label class="payment-option-card">
+                        <input type="radio" name="payment_method" value="efectivo_destino" id="pay-cash" checked onchange="actualizarResumenPago()">
+                        <div class="option-content">
+                            <div class="option-header">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>Pago en Efectivo / Transferencia al finalizar el viaje</span>
+                            </div>
+                            <small class="no-fee-tag">Pago directo con el conductor</small>
                         </div>
-                        <small class="no-fee-tag">Pago directo con el conductor</small>
-                    </div>
-                </label>
+                    </label>
+                </div>
             </div>
+
+            <!-- Desglose de Precios -->
+            <div class="invoice-summary">
+                <div class="summary-line">
+                    <span>Valor Base del Viaje:</span>
+                    <span id="inv-base-price">$0 COP</span>
+                </div>
+                <div class="summary-line" id="surcharge-line" style="display: none; color: #ffab40;">
+                    <span>Comisión Datáfono / Bold (4%):</span>
+                    <span id="inv-surcharge">$0 COP</span>
+                </div>
+                <div class="summary-line total-line">
+                    <span>TOTAL A PAGAR:</span>
+                    <span id="inv-total-price">$0 COP</span>
+                </div>
+            </div>
+
+            <!-- Botón Único de Confirmación -->
+            <button id="btnProcesarReserva" onclick="procesarReservaYPago(event)" style="margin-top: 20px; width: 100%; padding: 14px; background-color: #16a34a; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.05rem;">
+                Confirmar Reserva y Agendar por WhatsApp
+            </button>
         </div>
+    </section>
 
-        <!-- Desglose de Precios -->
-        <div class="invoice-summary">
-            <div class="summary-line">
-                <span>Valor Base del Viaje:</span>
-                <span id="inv-base-price">$0 COP</span>
-            </div>
-            <div class="summary-line" id="surcharge-line" style="display: none; color: #ffab40;">
-                <span>Comisión Datafono / Bold (4%):</span>
-                <span id="inv-surcharge">$0 COP</span>
-            </div>
-            <div class="summary-line total-line">
-                <span>TOTAL A PAGAR:</span>
-                <span id="inv-total-price">$0 COP</span>
-            </div>
-        </div>
-
-        <!-- BLOQUE DE SELECCIÓN DE PAGO (Dentro de la sección de cotización) -->
-<div class="payment-box">
-  <label for="paymentMethod">Método de pago deseado:</label>
-  <select id="paymentMethod" onchange="actualizarResumenPago()">
-    <option value="">-- Selecciona una opción --</option>
-    <option value="pse">Transferencia en línea (Botón PSE)</option>
-    <option value="bold">Tarjeta de Crédito / Débito en línea (Bold + 4%)</option>
-    <option value="efectivo_destino">Efectivo o Transferencia al llegar al destino</option>
-  </select>
-
-  <!-- Campo oculto donde tu JavaScript actual inserta el valor calculado sin recargo -->
-  <input type="hidden" id="tarifaBaseCalculada" value="0">
-
-  <!-- Resumen dinámico con o sin recargo del 4% -->
-  <div id="paymentSummary"></div>
-
-  <!-- Botón Principal -->
-  <button id="btnProcesarReserva" onclick="procesarReservaYPago(event)" style="margin-top: 15px; width: 100%; padding: 12px; background-color: #16a34a; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem;">
-    Confirmar Reserva y Agendar por WhatsApp
-  </button>
-</div>
-    </div>
-</section>
     <!-- Sección de Servicios -->
     <section id="servicios" class="services-section">
         <h2 data-es="Servicios Premium Personalizados" data-en="Custom Premium Services">Servicios Premium Personalizados</h2>
@@ -339,47 +323,67 @@
         <p class="legal">Premium Private Transport for Every Journey.</p>
     </footer>
 
+    <!-- BOTÓN Y PANEL DE ADMINISTRACIÓN (ÚNICO) -->
+    <div style="text-align: center; margin: 40px 0 20px 0;">
+        <button onclick="autenticarAdmin()" style="background: none; border: none; color: #94a3b8; font-size: 0.85rem; cursor: pointer; text-decoration: underline;">
+            🔒 Acceso Administración
+        </button>
+    </div>
+
+    <div id="adminPanelSection" class="admin-section" style="display: none;">
+        <div class="admin-header">
+            <h3 style="margin: 0; color: #0f172a;">📋 Historial de Facturas y Reservas</h3>
+            <button onclick="cerrarAdmin()" style="padding: 6px 12px; background-color: #ef4444; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Cerrar Panel</button>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <input type="text" id="adminSearchInput" onkeyup="filtrarTablaAdmin()" placeholder="Buscar por consecutivo, cliente o destino..." style="padding: 8px 12px; width: 100%; max-width: 350px; border: 1px solid #cbd5e1; border-radius: 6px;">
+            <button onclick="cargarFacturasAdmin()" style="padding: 8px 16px; background-color: #2563eb; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">🔄 Actualizar</button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Factura</th>
+                        <th>Fecha Registro</th>
+                        <th>Cliente</th>
+                        <th>Ruta</th>
+                        <th>Método Pago</th>
+                        <th>Total COP</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="listaFacturasBody">
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: #64748b;">Cargando registros de Firebase...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Inicialización de Firebase -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBI7hzuEoHTBfvD3qi9pemIsgfv1OwEvpU",
+            authDomain: "ag-executive.firebaseapp.com",
+            databaseURL: "https://ag-executive-default-rtdb.firebaseio.com",
+            projectId: "ag-executive",
+            storageBucket: "ag-executive.firebasestorage.app",
+            messagingSenderId: "611392539268",
+            appId: "1:611392539268:web:2dafae6cd3e01d0f3bd0d1",
+            measurementId: "G-V1E4ERNKY6"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+    </script>
+
+    <!-- Script Principal JS (Al final) -->
     <script src="script.js"></script>
-    <!-- BOTÓN Y CONTENEDOR DEL PANEL DE ADMINISTRACIÓN -->
-<div style="text-align: center; margin: 50px 0 20px 0;">
-  <button onclick="autenticarAdmin()" style="background: none; border: none; color: #94a3b8; font-size: 0.85rem; cursor: pointer; text-decoration: underline;">
-    🔒 Acceso Administración
-  </button>
-</div>
 
-<!-- PANEL DE ADMINISTRACIÓN (Oculto por defecto) -->
-<div id="adminPanelSection" class="admin-section" style="display: none;">
-  <div class="admin-header">
-    <h3 style="margin: 0; color: #0f172a;">📋 Historial de Facturas y Reservas</h3>
-    <button onclick="cerrarAdmin()" style="padding: 6px 12px; background-color: #ef4444; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Cerrar Panel</button>
-  </div>
-
-  <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-    <input type="text" id="adminSearchInput" onkeyup="filtrarTablaAdmin()" placeholder="Buscar por consecutivo, cliente o destino..." style="padding: 8px 12px; width: 100%; max-width: 350px; border: 1px solid #cbd5e1; border-radius: 6px;">
-    <button onclick="cargarFacturasAdmin()" style="padding: 8px 16px; background-color: #2563eb; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">🔄 Actualizar</button>
-  </div>
-
-  <div class="table-responsive">
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>Factura</th>
-          <th>Fecha Registro</th>
-          <th>Cliente</th>
-          <th>Ruta</th>
-          <th>Método Pago</th>
-          <th>Total COP</th>
-          <th>Estado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody id="listaFacturasBody">
-        <tr>
-          <td colspan="8" style="text-align: center; color: #64748b;">Cargando registros de Firebase...</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
 </body>
 </html>
