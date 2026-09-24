@@ -13,7 +13,7 @@
     
     <link rel="stylesheet" href="style.css">
 
-    <!-- Firebase App y Database SDKs (Compat v9) -->
+    <!-- Firebase App y Database SDKs (Única versión V9 Compat en HEAD) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
@@ -27,8 +27,8 @@
         <nav class="navbar">
             <div class="logo">AG <span>Executive Driver</span></div>
             <div class="lang-selector">
-                <button id="btn-es" class="lang-btn active">Español</button>
-                <button id="btn-en" class="lang-btn">English</button>
+                <button id="btn-es" class="lang-btn active" onclick="window.changeLanguage('es')">Español</button>
+                <button id="btn-en" class="lang-btn" onclick="window.changeLanguage('en')">English</button>
             </div>
             <ul class="nav-links">
                 <li><a href="#inicio" data-es="Inicio" data-en="Home">Inicio</a></li>
@@ -63,13 +63,13 @@
                     <label data-es="Punto de Origen:" data-en="Origin:">Punto de Origen:</label>
                     <div class="input-icon">
                         <i class="fas fa-map-marker-alt"></i>
-                        <input type="text" id="origin-input" placeholder="Ej: San Fernando, Cali" required>
+                        <input type="text" id="origin-input" placeholder="Ej: San Fernando, Cali" data-es="Ej: San Fernando, Cali" data-en="Ex: San Fernando, Cali" required>
                     </div>
                 </div>
 
                 <!-- Contenedor Dinámico de Paradas -->
                 <div id="stops-container" class="stops-container"></div>
-                <button type="button" id="btn-add-stop" class="btn-add-stop">
+                <button type="button" id="btn-add-stop" class="btn-add-stop" data-es="+ Agregar Parada Intermedia (+5 min)" data-en="+ Add Intermediate Stop (+5 min)">
                     <i class="fas fa-plus-circle"></i> <span data-es="+ Agregar Parada Intermedia (+5 min)" data-en="+ Add Intermediate Stop (+5 min)">+ Agregar Parada Intermedia (+5 min)</span>
                 </button>
 
@@ -77,7 +77,7 @@
                     <label data-es="Punto de Destino:" data-en="Destination:">Punto de Destino:</label>
                     <div class="input-icon">
                         <i class="fas fa-flag-checkered"></i>
-                        <input type="text" id="destination-input" placeholder="Ej: Aeropuerto Alfonso Bonilla Aragón" required>
+                        <input type="text" id="destination-input" placeholder="Ej: Aeropuerto Alfonso Bonilla Aragón" data-es="Ej: Aeropuerto Alfonso Bonilla Aragón" data-en="Ex: Alfonso Bonilla Aragón Airport" required>
                     </div>
                 </div>
 
@@ -119,15 +119,14 @@
 
     <!-- SECCIÓN DE FACTURACIÓN Y PAGO -->
     <section id="invoice-section" class="invoice-section" style="display: none;">
-        <!-- Factura / Invoice -->
         <div class="invoice-card">
             <div class="invoice-header">
                 <div class="brand-info">
                     <h3>AG EXECUTIVE DRIVER</h3>
-                    <p>Servicio Ejecutivo de Transporte Privado</p>
+                    <p data-es="Servicio Ejecutivo de Transporte Privado" data-en="Executive Private Transport Service">Servicio Ejecutivo de Transporte Privado</p>
                 </div>
                 <div class="invoice-meta">
-                    <span class="invoice-badge">COTIZACIÓN / FACTURA</span>
+                    <span class="invoice-badge" data-es="COTIZACIÓN / FACTURA" data-en="QUOTE / INVOICE">COTIZACIÓN / FACTURA</span>
                     <p class="invoice-number">N° <span id="inv-consecutive">AG-INV-1001</span></p>
                     <p class="invoice-date" id="inv-date"></p>
                 </div>
@@ -137,24 +136,24 @@
 
             <div class="invoice-details">
                 <div class="detail-row">
-                    <span><i class="fas fa-map-marker-alt"></i> Origen:</span>
+                    <span><i class="fas fa-map-marker-alt"></i> <span data-es="Origen:" data-en="Origin:">Origen:</span></span>
                     <strong id="inv-origin">-</strong>
                 </div>
                 
                 <div id="inv-stops-container"></div>
 
                 <div class="detail-row">
-                    <span><i class="fas fa-flag-checkered"></i> Destino Final:</span>
+                    <span><i class="fas fa-flag-checkered"></i> <span data-es="Destino Final:" data-en="Final Destination:">Destino Final:</span></span>
                     <strong id="inv-destination">-</strong>
                 </div>
 
                 <div class="detail-row">
-                    <span><i class="fas fa-road"></i> Distancia Total:</span>
+                    <span><i class="fas fa-road"></i> <span data-es="Distancia Total:" data-en="Total Distance:">Distancia Total:</span></span>
                     <strong id="inv-distance">-</strong>
                 </div>
 
                 <div class="detail-row">
-                    <span><i class="fas fa-clock"></i> Tiempo Est. (Ruta + Espera):</span>
+                    <span><i class="fas fa-clock"></i> <span data-es="Tiempo Est. (Ruta + Espera):" data-en="Est. Time (Route + Wait):">Tiempo Est. (Ruta + Espera):</span></span>
                     <strong id="inv-time">-</strong>
                 </div>
             </div>
@@ -163,42 +162,42 @@
 
             <!-- Selección de Método de Pago con Tarjetas/Radio -->
             <div class="payment-selection">
-                <h4><i class="fas fa-credit-card"></i> Selecciona tu Método de Pago:</h4>
+                <h4><i class="fas fa-credit-card"></i> <span data-es="Selecciona tu Método de Pago:" data-en="Select Your Payment Method:">Selecciona tu Método de Pago:</span></h4>
                 
                 <div class="payment-options">
                     <!-- Opción 1: Tarjeta Bold (+4%) -->
                     <label class="payment-option-card">
-                        <input type="radio" name="payment_method" value="bold" id="pay-card" onchange="actualizarResumenPago()">
+                        <input type="radio" name="payment_method" value="bold" id="pay-card" onchange="window.actualizarResumenPago()">
                         <div class="option-content">
                             <div class="option-header">
                                 <i class="fas fa-credit-card"></i>
-                                <span>Tarjeta de Crédito / Débito (Datáfono Bold)</span>
+                                <span data-es="Tarjeta de Crédito / Débito (Datáfono Bold)" data-en="Credit / Debit Card (Bold Terminal)">Tarjeta de Crédito / Débito (Datáfono Bold)</span>
                             </div>
-                            <small class="surcharge-tag">+4% comisión de procesamiento</small>
+                            <small class="surcharge-tag" data-es="+4% comisión de procesamiento" data-en="+4% processing fee">+4% comisión de procesamiento</small>
                         </div>
                     </label>
 
                     <!-- Opción 2: Transferencia PSE -->
                     <label class="payment-option-card">
-                        <input type="radio" name="payment_method" value="pse" id="pay-pse" onchange="actualizarResumenPago()">
+                        <input type="radio" name="payment_method" value="pse" id="pay-pse" onchange="window.actualizarResumenPago()">
                         <div class="option-content">
                             <div class="option-header">
                                 <i class="fas fa-university"></i>
-                                <span>Transferencia Bancaria en Línea (PSE / Nequi / Bancolombia)</span>
+                                <span data-es="Transferencia Bancaria en Línea (PSE / Nequi / Bancolombia)" data-en="Online Bank Transfer (PSE / Nequi / Bancolombia)">Transferencia Bancaria en Línea (PSE / Nequi / Bancolombia)</span>
                             </div>
-                            <small class="no-fee-tag">Sin recargo adicional</small>
+                            <small class="no-fee-tag" data-es="Sin recargo adicional" data-en="No additional fee">Sin recargo adicional</small>
                         </div>
                     </label>
 
                     <!-- Opción 3: Efectivo o Pago al Finalizar -->
                     <label class="payment-option-card">
-                        <input type="radio" name="payment_method" value="efectivo_destino" id="pay-cash" checked onchange="actualizarResumenPago()">
+                        <input type="radio" name="payment_method" value="efectivo_destino" id="pay-cash" checked onchange="window.actualizarResumenPago()">
                         <div class="option-content">
                             <div class="option-header">
                                 <i class="fas fa-money-bill-wave"></i>
-                                <span>Pago en Efectivo / Transferencia al finalizar el viaje</span>
+                                <span data-es="Pago en Efectivo / Transferencia al finalizar el viaje" data-en="Cash / Transfer upon trip completion">Pago en Efectivo / Transferencia al finalizar el viaje</span>
                             </div>
-                            <small class="no-fee-tag">Pago directo con el conductor</small>
+                            <small class="no-fee-tag" data-es="Pago directo con el conductor" data-en="Direct payment to driver">Pago directo con el conductor</small>
                         </div>
                     </label>
                 </div>
@@ -207,22 +206,22 @@
             <!-- Desglose de Precios -->
             <div class="invoice-summary">
                 <div class="summary-line">
-                    <span>Valor Base del Viaje:</span>
+                    <span data-es="Valor Base del Viaje:" data-en="Base Trip Fare:">Valor Base del Viaje:</span>
                     <span id="inv-base-price">$0 COP</span>
                 </div>
                 <div class="summary-line" id="surcharge-line" style="display: none; color: #ffab40;">
-                    <span>Comisión Datáfono / Bold (4%):</span>
+                    <span data-es="Comisión Datáfono / Bold (4%):" data-en="Bold Terminal Fee (4%):">Comisión Datáfono / Bold (4%):</span>
                     <span id="inv-surcharge">$0 COP</span>
                 </div>
                 <div class="summary-line total-line">
-                    <span>TOTAL A PAGAR:</span>
+                    <span data-es="TOTAL A PAGAR:" data-en="TOTAL TO PAY:">TOTAL A PAGAR:</span>
                     <span id="inv-total-price">$0 COP</span>
                 </div>
             </div>
 
             <!-- Botón Único de Confirmación -->
-            <button id="btnProcesarReserva" onclick="procesarReservaYPago(event)" style="margin-top: 20px; width: 100%; padding: 14px; background-color: #16a34a; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.05rem;">
-                Confirmar Reserva y Agendar por WhatsApp
+            <button id="btnProcesarReserva" onclick="window.procesarReservaYPago(event)" style="margin-top: 20px; width: 100%; padding: 14px; background-color: #16a34a; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.05rem;" data-es="Confirmar Reserva y Agendar por WhatsApp" data-en="Confirm Booking & Schedule via WhatsApp">
+                <i class="fab fa-whatsapp"></i> <span data-es="Confirmar Reserva y Agendar por WhatsApp" data-en="Confirm Booking & Schedule via WhatsApp">Confirmar Reserva y Agendar por WhatsApp</span>
             </button>
         </div>
     </section>
@@ -230,7 +229,7 @@
     <!-- Sección de Servicios -->
     <section id="servicios" class="services-section">
         <h2 data-es="Servicios Premium Personalizados" data-en="Custom Premium Services">Servicios Premium Personalizados</h2>
-        <p class="section-subtitle">Premium private transport for every journey</p>
+        <p class="section-subtitle" data-es="Transporte privado de alto nivel para cada ocasión" data-en="Premium private transport for every journey">Transporte privado de alto nivel para cada ocasión</p>
         <div class="services-container">
             <div class="service-card">
                 <div class="icon-box"><i class="fas fa-map-marked-alt"></i></div>
@@ -297,8 +296,8 @@
                         <i class="far fa-star" data-value="5"></i>
                     </div>
                 </div>
-                <input type="text" id="reviewer-name" placeholder="Tu Nombre / Name" required>
-                <textarea id="reviewer-text" rows="3" placeholder="Escribe tu comentario aquí... / Write your comment here..." required></textarea>
+                <input type="text" id="reviewer-name" placeholder="Tu Nombre / Name" data-es="Tu Nombre" data-en="Your Name" required>
+                <textarea id="reviewer-text" rows="3" placeholder="Escribe tu comentario aquí... / Write your comment here..." data-es="Escribe tu comentario aquí..." data-en="Write your comment here..." required></textarea>
                 <button type="submit" class="btn-submit" data-es="Guardar Reseña" data-en="Submit Review">Guardar Reseña</button>
             </form>
 
@@ -312,7 +311,7 @@
     <section id="contacto" class="cta-section">
         <h2 data-es="¿Tienes dudas adicionales sobre tu viaje?" data-en="Do you have additional questions about your trip?">¿Tienes dudas adicionales sobre tu viaje?</h2>
         <p data-es="Si requieres una cotización especial, servicio corporativo por días o consultar disponibilidad, escríbeme directamente." data-en="If you require a special quote, daily corporate service, or want to check availability, contact me directly.">Si requieres una cotización especial, servicio corporativo por días o consultar disponibilidad, escríbeme directamente.</p>
-        <a href="https://wa.me/573176653331?text=Hola,%20tengo%20una%20consulta%20adicional%20sobre%20un%20servicio%20de%20transporte." target="_blank" class="btn-secondary" id="whatsapp-footer">
+        <a href="https://wa.me/573176653331?text=Hola,%20tengo%20una%20consulta%20adicional%20sobre%20un%20servicio%20de%20transporte." target="_blank" class="btn-secondary" id="whatsapp-footer" data-es="Resolver Dudas por WhatsApp" data-en="Ask Questions via WhatsApp">
             <i class="fab fa-whatsapp"></i> <span data-es="Resolver Dudas por WhatsApp" data-en="Ask Questions via WhatsApp">Resolver Dudas por WhatsApp</span>
         </a>
     </section>
@@ -323,66 +322,48 @@
         <p class="legal">Premium Private Transport for Every Journey.</p>
     </footer>
 
-    <!-- BOTÓN Y PANEL DE ADMINISTRACIÓN (ÚNICO) -->
+    <!-- BOTÓN Y PANEL DE ADMINISTRACIÓN -->
     <div style="text-align: center; margin: 40px 0 20px 0;">
-        <button onclick="autenticarAdmin()" style="background: none; border: none; color: #94a3b8; font-size: 0.85rem; cursor: pointer; text-decoration: underline;">
+        <button onclick="window.autenticarAdmin()" style="background: none; border: none; color: #94a3b8; font-size: 0.85rem; cursor: pointer; text-decoration: underline;" data-es="🔒 Acceso Administración" data-en="🔒 Admin Access">
             🔒 Acceso Administración
         </button>
     </div>
 
     <div id="adminPanelSection" class="admin-section" style="display: none;">
         <div class="admin-header">
-            <h3 style="margin: 0; color: #0f172a;">📋 Historial de Facturas y Reservas</h3>
-            <button onclick="cerrarAdmin()" style="padding: 6px 12px; background-color: #ef4444; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Cerrar Panel</button>
+            <h3 style="margin: 0; color: #cfd4d9;" data-es="📋 Historial de Facturas y Reservas" data-en="📋 Invoices & Bookings History">📋 Historial de Facturas y Reservas</h3>
+            <button onclick="window.cerrarAdmin()" style="padding: 6px 12px; background-color: #ef4444; color: #fff; border: none; border-radius: 4px; cursor: pointer;" data-es="Cerrar Panel" data-en="Close Panel">Cerrar Panel</button>
         </div>
 
         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-            <input type="text" id="adminSearchInput" onkeyup="filtrarTablaAdmin()" placeholder="Buscar por consecutivo, cliente o destino..." style="padding: 8px 12px; width: 100%; max-width: 350px; border: 1px solid #cbd5e1; border-radius: 6px;">
-            <button onclick="cargarFacturasAdmin()" style="padding: 8px 16px; background-color: #2563eb; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">🔄 Actualizar</button>
+            <input type="text" id="adminSearchInput" onkeyup="window.filtrarTablaAdmin()" placeholder="Buscar por consecutivo, cliente o destino..." data-es="Buscar por consecutivo, cliente o destino..." data-en="Search by invoice, client or destination..." style="padding: 8px 12px; width: 100%; max-width: 350px; border: 1px solid #1c3d5a; border-radius: 6px; background: #000; color: #fff;">
+            <button onclick="window.cargarFacturasAdmin()" style="padding: 8px 16px; background-color: #1c3d5a; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;" data-es="🔄 Actualizar" data-en="🔄 Refresh">🔄 Actualizar</button>
         </div>
 
         <div class="table-responsive">
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th>Factura</th>
-                        <th>Fecha Registro</th>
-                        <th>Cliente</th>
-                        <th>Ruta</th>
-                        <th>Método Pago</th>
-                        <th>Total COP</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
+                        <th data-es="Factura" data-en="Invoice">Factura</th>
+                        <th data-es="Fecha Registro" data-en="Date">Fecha Registro</th>
+                        <th data-es="Cliente" data-en="Client">Cliente</th>
+                        <th data-es="Ruta" data-en="Route">Ruta</th>
+                        <th data-es="Método Pago" data-en="Payment Method">Método Pago</th>
+                        <th data-es="Total COP" data-en="Total COP">Total COP</th>
+                        <th data-es="Estado" data-en="Status">Estado</th>
+                        <th data-es="Acciones" data-en="Actions">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="listaFacturasBody">
                     <tr>
-                        <td colspan="8" style="text-align: center; color: #64748b;">Cargando registros de Firebase...</td>
+                        <td colspan="8" style="text-align: center; color: #8e9aa8;" data-es="Cargando registros de Firebase..." data-en="Loading Firebase records...">Cargando registros de Firebase...</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- Inicialización de Firebase -->
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBI7hzuEoHTBfvD3qi9pemIsgfv1OwEvpU",
-            authDomain: "ag-executive.firebaseapp.com",
-            databaseURL: "https://ag-executive-default-rtdb.firebaseio.com",
-            projectId: "ag-executive",
-            storageBucket: "ag-executive.firebasestorage.app",
-            messagingSenderId: "611392539268",
-            appId: "1:611392539268:web:2dafae6cd3e01d0f3bd0d1",
-            measurementId: "G-V1E4ERNKY6"
-        };
-
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-    </script>
-
-    <!-- Script Principal JS (Al final) -->
+    <!-- Script Principal JS -->
     <script src="script.js"></script>
 
 </body>
