@@ -1,32 +1,27 @@
 // =================================================================
-// 1. CONFIGURACIÓN SEGURA DE FIREBASE Y PASARELAS DE PAGO
+// 1. INICIALIZACIÓN SEGURA DE FIREBASE
 // =================================================================
+var firebaseConfig = {
+  apiKey: "AIzaSyBI7hzuEoHTBfvD3qi9pemIsgfv1OwEvpU",
+  authDomain: "ag-executive.firebaseapp.com",
+  databaseURL: "https://ag-executive-default-rtdb.firebaseio.com",
+  projectId: "ag-executive",
+  storageBucket: "ag-executive.firebasestorage.app",
+  messagingSenderId: "611392539268",
+  appId: "1:611392539268:web:2dafae6cd3e01d0f3bd0d1",
+  measurementId: "G-V1E4ERNKY6"
+};
 
-// Evitar choque de re-declaración con index.html
-if (typeof window.firebaseConfig === "undefined") {
-  window.firebaseConfig = {
-    apiKey: "AIzaSyBI7hzuEoHTBfvD3qi9pemIsgfv1OwEvpU",
-    authDomain: "ag-executive.firebaseapp.com",
-    databaseURL: "https://ag-executive-default-rtdb.firebaseio.com",
-    projectId: "ag-executive",
-    storageBucket: "ag-executive.firebasestorage.app",
-    messagingSenderId: "611392539268",
-    appId: "1:611392539268:web:2dafae6cd3e01d0f3bd0d1",
-    measurementId: "G-V1E4ERNKY6"
-  };
-}
-
-// Inicializar Firebase si no se ha inicializado
 if (typeof firebase !== "undefined" && !firebase.apps.length) {
-  firebase.initializeApp(window.firebaseConfig);
+  firebase.initializeApp(firebaseConfig);
 }
 
 var CONFIG_PAGO = {
-  boldBaseUrl: "https://bold.co/p/tu-link-de-bold", // Reemplaza con tu link de Bold
-  pseUrl: "https://www.pse.com.co",                // Reemplaza con tu enlace PSE
-  whatsappNumber: "573176653331",                  // WhatsApp oficial
-  porcentajeRecargoBold: 0.04,                      // 4% de recargo
-  adminPassword: "Olc.26colec*"                   // Clave Panel de Administración
+  boldBaseUrl: "https://bold.co/p/tu-link-de-bold",
+  pseUrl: "https://www.pse.com.co",
+  whatsappNumber: "573176653331",
+  porcentajeRecargoBold: 0.04,
+  adminPassword: "Olc.26colec*"
 };
 
 function getDB() {
@@ -35,23 +30,53 @@ function getDB() {
       return firebase.database();
     }
   } catch (e) {
-    console.warn("Firebase BD no disponible:", e);
+    console.warn("Firebase no disponible:", e);
   }
   return null;
 }
 
-// Variables globales de estado
 var calculatedTripData = null;
 var activeInvoiceData = null;
 var selectedStarRating = 5;
 
 // =================================================================
-// 2. FUNCIONES GLOBALES (PARA EVENTOS DE HTML LIKE ONCLICK/ONCHANGE)
+// 2. MOTOR UNIVERSAL DE TRADUCCIÓN (TEXTOS, PLACEHOLDERS E ÍCONOS)
 // =================================================================
+window.changeLanguage = function(lang) {
+  var elements = document.querySelectorAll("[data-es]");
+  elements.forEach(function(elem) {
+    var text = elem.getAttribute("data-" + lang);
+    if (!text) return;
 
-/**
- * Recalcula el total de la factura según el método de pago seleccionado
- */
+    // Traducir Placeholders de Inputs y Textareas
+    if (elem.tagName === "INPUT" || elem.tagName === "TEXTAREA") {
+      elem.placeholder = text;
+      return;
+    }
+
+    // Preservar Íconos FontAwesome (i tag)
+    var icon = elem.querySelector("i");
+    var span = elem.querySelector("span");
+
+    if (span) {
+      span.textContent = span.getAttribute("data-" + lang) || text;
+    } else if (icon) {
+      var iconHtml = icon.outerHTML;
+      elem.innerHTML = iconHtml + " " + text;
+    } else {
+      elem.textContent = text;
+    }
+  });
+
+  var btnEs = document.getElementById("btn-es");
+  var btnEn = document.getElementById("btn-en");
+  if (btnEs) btnEs.classList.toggle("active", lang === "es");
+  if (btnEn) btnEn.classList.toggle("active", lang === "en");
+};
+
+// =================================================================
+// 3. FACTURACIÓN Y CONTROL DE PAGOS
+// =================================================================
 window.actualizarResumenPago = function() {
   if (!activeInvoiceData) return;
 
@@ -94,9 +119,6 @@ window.actualizarResumenPago = function() {
   if (invBasePrice) invBasePrice.textContent = "$" + base.toLocaleString('es-CO') + " COP";
 };
 
-/**
- * Procesa la reserva: guarda en Firebase y redirige a WhatsApp
- */
 window.procesarReservaYPago = async function(event) {
   if (event) event.preventDefault();
 
@@ -128,7 +150,6 @@ window.procesarReservaYPago = async function(event) {
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando reserva...';
     }
 
-    // Guardar en Firebase Realtime Database
     if (db) {
       await db.ref("facturas/" + activeInvoiceData.invoiceNum).set({
         consecutivo: activeInvoiceData.invoiceNum,
@@ -147,7 +168,6 @@ window.procesarReservaYPago = async function(event) {
       });
     }
 
-    // Formatear mensaje para WhatsApp
     var stopsFormatted = "";
     if (activeInvoiceData.tripData.stops && activeInvoiceData.tripData.stops.length > 0) {
       stopsFormatted = "\n🛑 *Paradas intermedias:*\n" + activeInvoiceData.tripData.stops.map(function(s, i) { return "  " + (i + 1) + ". " + s; }).join("\n");
@@ -170,11 +190,9 @@ window.procesarReservaYPago = async function(event) {
     invoiceMsg += "💰 *TOTAL A PAGAR:* $" + activeInvoiceData.finalTotal.toLocaleString('es-CO') + " COP\n\n" +
       "Quedo atento a la confirmación de la reserva. ¡Muchas gracias!";
 
-    // Abrir WhatsApp
     var urlWA = "https://wa.me/" + CONFIG_PAGO.whatsappNumber + "?text=" + encodeURIComponent(invoiceMsg);
     window.open(urlWA, "_blank");
 
-    // Abrir pasarela si aplica
     if (activeInvoiceData.selectedMethod === "bold" || activeInvoiceData.selectedMethod === "pse") {
       setTimeout(function() {
         window.open(enlacePago, "_blank");
@@ -183,16 +201,18 @@ window.procesarReservaYPago = async function(event) {
 
   } catch (error) {
     console.error("Error al procesar reserva:", error);
-    alert("Reserva enviada a WhatsApp correctamente.");
+    alert("Reserva enviada a WhatsApp.");
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.innerHTML = 'Confirmar Reserva y Agendar por WhatsApp';
+      btn.innerHTML = '<i class="fab fa-whatsapp"></i> Confirmar Reserva y Agendar por WhatsApp';
     }
   }
 };
 
-// --- PANEL DE ADMINISTRACIÓN ---
+// =================================================================
+// 4. PANEL DE ADMINISTRACIÓN
+// =================================================================
 window.autenticarAdmin = function() {
   var clave = prompt("Ingresa la contraseña de administración:");
   if (clave === CONFIG_PAGO.adminPassword) {
@@ -288,9 +308,8 @@ window.filtrarTablaAdmin = function() {
 };
 
 // =================================================================
-// 3. GENERADOR DE CONSECUTIVO Y DESPLIEGUE DE FACTURA
+// 5. GENERACIÓN DE FACTURAS Y COTIZADOR
 // =================================================================
-
 async function obtenerSiguienteConsecutivo() {
   var db = getDB();
   if (db) {
@@ -303,7 +322,7 @@ async function obtenerSiguienteConsecutivo() {
         return "AG-INV-" + result.snapshot.val();
       }
     } catch (e) {
-      console.warn("Error en transacción Firebase, usando consecutivo local:", e);
+      console.warn("Usando consecutivo local:", e);
     }
   }
   var currentNumber = parseInt(localStorage.getItem("ag_inv_counter") || "1000", 10) + 1;
@@ -364,56 +383,10 @@ async function displayInvoice(tripData, basePriceNumeric) {
 }
 
 // =================================================================
-// 4. INICIALIZACIÓN DE EVENTOS DOM (DOMContentLoaded)
+// 6. INICIALIZADOR DE EVENTOS (DOM)
 // =================================================================
 document.addEventListener("DOMContentLoaded", function() {
 
-  // --- TRADUCCIÓN / CAMBIO DE IDIOMA ---
-  var btnEs = document.getElementById("btn-es");
-  var btnEn = document.getElementById("btn-en");
-
-  function changeLanguage(lang) {
-    var translateElements = document.querySelectorAll("[data-es]");
-    translateElements.forEach(function(elem) {
-      var attrVal = elem.getAttribute("data-" + lang);
-      if (!attrVal) return;
-
-      var span = elem.querySelector("span");
-      var icon = elem.querySelector("i");
-
-      if (span) {
-        span.textContent = span.getAttribute("data-" + lang) || attrVal;
-      } else if (icon) {
-        // Preservar el ícono FontAwesome al cambiar texto
-        elem.childNodes.forEach(function(node) {
-          if (node.nodeType === Node.TEXT_NODE) {
-            node.textContent = attrVal + " ";
-          }
-        });
-      } else {
-        elem.textContent = attrVal;
-      }
-    });
-
-    if (btnEs) btnEs.classList.toggle("active", lang === "es");
-    if (btnEn) btnEn.classList.toggle("active", lang === "en");
-  }
-
-  if (btnEs) btnEs.addEventListener("click", function() { changeLanguage("es"); });
-  if (btnEn) btnEn.addEventListener("click", function() { changeLanguage("en"); });
-
-  // --- ESCUCHAR CAMBIOS EN LOS RADIO BUTTONS DE PAGO ---
-  var radioCard = document.getElementById("pay-card");
-  var radioPse = document.getElementById("pay-pse");
-  var radioCash = document.getElementById("pay-cash");
-
-  [radioCard, radioPse, radioCash].forEach(function(radio) {
-    if (radio) {
-      radio.addEventListener("change", window.actualizarResumenPago);
-    }
-  });
-
-  // --- COTIZADOR ---
   var originInput = document.getElementById("origin-input");
   var destinationInput = document.getElementById("destination-input");
   var stopsContainer = document.getElementById("stops-container");
@@ -472,16 +445,14 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-  // Google Maps Autocomplete
+  // Autocomplete de Google Maps
   function initMapsAutocomplete() {
     try {
       if (window.google && google.maps && google.maps.places) {
         if (originInput) new google.maps.places.Autocomplete(originInput);
         if (destinationInput) new google.maps.places.Autocomplete(destinationInput);
       }
-    } catch (err) {
-      console.warn("Google Autocomplete no disponible:", err);
-    }
+    } catch (err) {}
   }
   setTimeout(initMapsAutocomplete, 800);
 
@@ -505,7 +476,6 @@ document.addEventListener("DOMContentLoaded", function() {
       var tienePeaje = tollCheck ? tollCheck.checked : false;
       var numPeajes = tienePeaje ? (parseInt(tollsCount.value) || 1) : 0;
 
-      // Intentar Google Maps Directions API
       if (window.google && google.maps && google.maps.DirectionsService) {
         var waypoints = stopInputs.map(function(stopAddr) {
           return { location: stopAddr, stopover: true };
@@ -563,19 +533,17 @@ document.addEventListener("DOMContentLoaded", function() {
 
             displayInvoice(calculatedTripData, tarifaTotal);
           } else {
-            // Fallback por estimación si la API no encuentra la ruta exacta
             procesarCotizacionFallback(origin, destination, stopInputs, tienePeaje, numPeajes);
           }
         });
       } else {
-        // Fallback si la API de Google Maps no está cargada
         procesarCotizacionFallback(origin, destination, stopInputs, tienePeaje, numPeajes);
       }
     });
   }
 
   function procesarCotizacionFallback(origin, destination, stopInputs, tienePeaje, numPeajes) {
-    var distanceKm = 12.0; // Distancia estándar estimada
+    var distanceKm = 12.0;
     var drivingMin = 25;
     var totalWaitMin = stopInputs.length * 5;
     var totalDurationMin = drivingMin + totalWaitMin;
@@ -584,7 +552,7 @@ document.addEventListener("DOMContentLoaded", function() {
     var tarifaTotal = (distanceKm * 2087) + costoPeajes;
     tarifaTotal = Math.max(15000, Math.round(tarifaTotal / 1000) * 1000);
 
-    if (resDistance) resDistance.textContent = distanceKm.toFixed(1) + " km (Estimado)";
+    if (resDistance) resDistance.textContent = distanceKm.toFixed(1) + " km";
     if (resTime) resTime.textContent = totalDurationMin + " min (" + drivingMin + " min ruta + " + totalWaitMin + " min espera)";
     if (resPrice) resPrice.textContent = "$" + tarifaTotal.toLocaleString('es-CO') + " COP";
     if (calcResult) calcResult.style.display = "block";
