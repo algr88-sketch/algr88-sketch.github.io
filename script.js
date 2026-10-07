@@ -1,5 +1,5 @@
 // =================================================================
-// 1. INICIALIZACIÓN SEGURA DE FIREBASE
+// 1. INICIALIZACIÓN SEGURA DE FIREBASE Y CONFIGURACIÓN
 // =================================================================
 var firebaseConfig = {
   apiKey: "AIzaSyBI7hzuEoHTBfvD3qi9pemIsgfv1OwEvpU",
@@ -17,7 +17,7 @@ if (typeof firebase !== "undefined" && !firebase.apps.length) {
 }
 
 var CONFIG_PAGO = {
-  boldBaseUrl: "https://checkout.bold.co/payment/LNK_7JK1RINGWU",
+  boldBaseUrl: "https://checkout.bold.co/payment/LNK_7JK1RINGWU", // Enlace de pago directo de Bold
   whatsappNumber: "573176653331",
   porcentajeRecargoBold: 0.04,
   adminPassword: "Olc.26colec*"
@@ -134,10 +134,10 @@ window.procesarReservaYPago = async function(event) {
 
   if (activeInvoiceData.selectedMethod === "bold") {
     methodText = "Tarjeta de Crédito / Débito (Bold +4%)";
-    enlacePago = CONFIG_PAGO.boldBaseUrl + "?amount=" + activeInvoiceData.finalTotal;
+    enlacePago = CONFIG_PAGO.boldBaseUrl;
   } else if (activeInvoiceData.selectedMethod === "pse") {
-    methodText = "Transferencia Bancaria en Línea (PSE / Nequi)";
-    enlacePago = CONFIG_PAGO.boldBaseUrl + "?amount=" + activeInvoiceData.finalTotal; // 👈 Mismo checkout de Bold con el valor base
+    methodText = "Transferencia Bancaria en Línea (PSE / Nequi vía Bold)";
+    enlacePago = CONFIG_PAGO.boldBaseUrl;
   } else {
     methodText = "Efectivo o Transferencia al finalizar el viaje";
     enlacePago = "Pago en destino";
@@ -190,12 +190,13 @@ window.procesarReservaYPago = async function(event) {
       "Quedo atento a la confirmación de la reserva. ¡Muchas gracias!";
 
     var urlWA = "https://wa.me/" + CONFIG_PAGO.whatsappNumber + "?text=" + encodeURIComponent(invoiceMsg);
-    window.open(urlWA, "_blank");
 
+    // Redirección directa sin bloqueos de navegador
     if (activeInvoiceData.selectedMethod === "bold" || activeInvoiceData.selectedMethod === "pse") {
-      setTimeout(function() {
-        window.open(enlacePago, "_blank");
-      }, 1500);
+      window.open(urlWA, "_blank");
+      window.location.href = enlacePago;
+    } else {
+      window.open(urlWA, "_blank");
     }
 
   } catch (error) {
