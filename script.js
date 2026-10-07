@@ -17,8 +17,7 @@ if (typeof firebase !== "undefined" && !firebase.apps.length) {
 }
 
 var CONFIG_PAGO = {
-  boldBaseUrl: "https://bold.co/p/tu-link-de-bold",
-  pseUrl: "https://www.pse.com.co",
+  boldBaseUrl: "https://checkout.bold.co/payment/LNK_7JK1RINGWU",
   whatsappNumber: "573176653331",
   porcentajeRecargoBold: 0.04,
   adminPassword: "Olc.26colec*"
@@ -138,7 +137,7 @@ window.procesarReservaYPago = async function(event) {
     enlacePago = CONFIG_PAGO.boldBaseUrl + "?amount=" + activeInvoiceData.finalTotal;
   } else if (activeInvoiceData.selectedMethod === "pse") {
     methodText = "Transferencia Bancaria en Línea (PSE / Nequi)";
-    enlacePago = CONFIG_PAGO.pseUrl;
+    enlacePago = CONFIG_PAGO.boldBaseUrl + "?amount=" + activeInvoiceData.finalTotal; // 👈 Mismo checkout de Bold con el valor base
   } else {
     methodText = "Efectivo o Transferencia al finalizar el viaje";
     enlacePago = "Pago en destino";
