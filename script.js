@@ -17,7 +17,7 @@ if (typeof firebase !== "undefined" && !firebase.apps.length) {
 }
 
 var CONFIG_PAGO = {
-  boldBaseUrl: "https://checkout.bold.co/payment/LNK_7JK1RINGWU", // Enlace de pago directo de Bold
+  boldBaseUrl: "https://checkout.bold.co/payment/LNK_7JK1RINGWU", // Link directo de Bold
   whatsappNumber: "573176653331",
   porcentajeRecargoBold: 0.04,
   adminPassword: "Olc.26colec*"
@@ -47,13 +47,11 @@ window.changeLanguage = function(lang) {
     var text = elem.getAttribute("data-" + lang);
     if (!text) return;
 
-    // Traducir Placeholders de Inputs y Textareas
     if (elem.tagName === "INPUT" || elem.tagName === "TEXTAREA") {
       elem.placeholder = text;
       return;
     }
 
-    // Preservar Íconos FontAwesome (i tag)
     var icon = elem.querySelector("i");
     var span = elem.querySelector("span");
 
@@ -118,16 +116,13 @@ window.actualizarResumenPago = function() {
   if (invBasePrice) invBasePrice.textContent = "$" + base.toLocaleString('es-CO') + " COP";
 };
 
-window.procesarReservaYPago = async function(event) {
+window.procesarReservaYPago = function(event) {
   if (event) event.preventDefault();
 
   if (!activeInvoiceData) {
     alert("Por favor calcula la tarifa de tu viaje antes de continuar.");
     return;
   }
-
-  var btn = document.getElementById("btnProcesarReserva");
-  var db = getDB();
 
   var methodText = "";
   var enlacePago = "";
@@ -143,14 +138,11 @@ window.procesarReservaYPago = async function(event) {
     enlacePago = "Pago en destino";
   }
 
-  try {
-    if (btn) {
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando reserva...';
-    }
-
-    if (db) {
-      await db.ref("facturas/" + activeInvoiceData.invoiceNum).set({
+  // 1. Registro en Firebase en segundo plano (sin pausar la navegación del usuario)
+  var db = getDB();
+  if (db) {
+    try {
+      db.ref("facturas/" + activeInvoiceData.invoiceNum).set({
         consecutivo: activeInvoiceData.invoiceNum,
         origen: activeInvoiceData.tripData.origin,
         destino: activeInvoiceData.tripData.destination,
@@ -164,49 +156,45 @@ window.procesarReservaYPago = async function(event) {
         enlacePago: enlacePago,
         estadoPago: activeInvoiceData.selectedMethod === "efectivo_destino" ? "Pendiente en Destino" : "Pendiente en Línea",
         fechaCreacion: new Date().toLocaleString('es-CO')
+      }).catch(function(e) {
+        console.warn("No se pudo guardar en Firebase:", e);
       });
+    } catch (e) {
+      console.warn("Excepción de Firebase:", e);
     }
+  }
 
-    var stopsFormatted = "";
-    if (activeInvoiceData.tripData.stops && activeInvoiceData.tripData.stops.length > 0) {
-      stopsFormatted = "\n🛑 *Paradas intermedias:*\n" + activeInvoiceData.tripData.stops.map(function(s, i) { return "  " + (i + 1) + ". " + s; }).join("\n");
-    }
+  // 2. Construcción del mensaje de WhatsApp
+  var stopsFormatted = "";
+  if (activeInvoiceData.tripData.stops && activeInvoiceData.tripData.stops.length > 0) {
+    stopsFormatted = "\n🛑 *Paradas intermedias:*\n" + activeInvoiceData.tripData.stops.map(function(s, i) { return "  " + (i + 1) + ". " + s; }).join("\n");
+  }
 
-    var invoiceMsg = "*AG EXECUTIVE DRIVER - FACTURA / INVOICE*\n" +
-      "🧾 *N° Factura:* " + activeInvoiceData.invoiceNum + "\n" +
-      "📅 *Fecha:* " + activeInvoiceData.date + "\n\n" +
-      "📍 *Origen:* " + activeInvoiceData.tripData.origin + stopsFormatted + "\n" +
-      "🏁 *Destino:* " + activeInvoiceData.tripData.destination + "\n\n" +
-      "📏 *Distancia:* " + activeInvoiceData.tripData.distanceKm + " km\n" +
-      "⏱️ *Tiempo Total:* " + activeInvoiceData.tripData.totalDurationMin + " min (" + activeInvoiceData.tripData.drivingMin + " min ruta + " + activeInvoiceData.tripData.totalWaitMin + " min espera)\n\n" +
-      "💳 *Método de Pago:* " + methodText + "\n";
+  var invoiceMsg = "*AG EXECUTIVE DRIVER - FACTURA / INVOICE*\n" +
+    "🧾 *N° Factura:* " + activeInvoiceData.invoiceNum + "\n" +
+    "📅 *Fecha:* " + activeInvoiceData.date + "\n\n" +
+    "📍 *Origen:* " + activeInvoiceData.tripData.origin + stopsFormatted + "\n" +
+    "🏁 *Destino:* " + activeInvoiceData.tripData.destination + "\n\n" +
+    "📏 *Distancia:* " + activeInvoiceData.tripData.distanceKm + " km\n" +
+    "⏱️ *Tiempo Total:* " + activeInvoiceData.tripData.totalDurationMin + " min (" + activeInvoiceData.tripData.drivingMin + " min ruta + " + activeInvoiceData.tripData.totalWaitMin + " min espera)\n\n" +
+    "💳 *Método de Pago:* " + methodText + "\n";
 
-    if (activeInvoiceData.surcharge > 0) {
-      invoiceMsg += "💵 *Valor Base:* $" + activeInvoiceData.basePrice.toLocaleString('es-CO') + " COP\n" +
-        "⚡ *Comisión Datafono (4%):* $" + activeInvoiceData.surcharge.toLocaleString('es-CO') + " COP\n";
-    }
+  if (activeInvoiceData.surcharge > 0) {
+    invoiceMsg += "💵 *Valor Base:* $" + activeInvoiceData.basePrice.toLocaleString('es-CO') + " COP\n" +
+      "⚡ *Comisión Datafono (4%):* $" + activeInvoiceData.surcharge.toLocaleString('es-CO') + " COP\n";
+  }
 
-    invoiceMsg += "💰 *TOTAL A PAGAR:* $" + activeInvoiceData.finalTotal.toLocaleString('es-CO') + " COP\n\n" +
-      "Quedo atento a la confirmación de la reserva. ¡Muchas gracias!";
+  invoiceMsg += "💰 *TOTAL A PAGAR:* $" + activeInvoiceData.finalTotal.toLocaleString('es-CO') + " COP\n\n" +
+    "Quedo atento a la confirmación de la reserva. ¡Muchas gracias!";
 
-    var urlWA = "https://wa.me/" + CONFIG_PAGO.whatsappNumber + "?text=" + encodeURIComponent(invoiceMsg);
+  var urlWA = "https://wa.me/" + CONFIG_PAGO.whatsappNumber + "?text=" + encodeURIComponent(invoiceMsg);
 
-    // Redirección directa sin bloqueos de navegador
-    if (activeInvoiceData.selectedMethod === "bold" || activeInvoiceData.selectedMethod === "pse") {
-      window.open(urlWA, "_blank");
-      window.location.href = enlacePago;
-    } else {
-      window.open(urlWA, "_blank");
-    }
-
-  } catch (error) {
-    console.error("Error al procesar reserva:", error);
-    alert("Reserva enviada a WhatsApp.");
-  } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fab fa-whatsapp"></i> Confirmar Reserva y Agendar por WhatsApp';
-    }
+  // 3. Ejecución inmediata (Síncrona)
+  if (activeInvoiceData.selectedMethod === "bold" || activeInvoiceData.selectedMethod === "pse") {
+    window.open(urlWA, "_blank");
+    window.location.href = enlacePago;
+  } else {
+    window.open(urlWA, "_blank");
   }
 };
 
@@ -314,15 +302,18 @@ async function obtenerSiguienteConsecutivo() {
   var db = getDB();
   if (db) {
     try {
-      var counterRef = db.ref("configuracion/ultimoConsecutivo");
-      var result = await counterRef.transaction(function(currentValue) {
+      var transactionPromise = db.ref("configuracion/ultimoConsecutivo").transaction(function(currentValue) {
         return (currentValue || 1000) + 1;
       });
+      var timeoutPromise = new Promise(function(_, reject) {
+        setTimeout(function() { reject(new Error("Timeout Firebase")); }, 1500);
+      });
+      var result = await Promise.race([transactionPromise, timeoutPromise]);
       if (result && result.snapshot && result.snapshot.val()) {
         return "AG-INV-" + result.snapshot.val();
       }
     } catch (e) {
-      console.warn("Usando consecutivo local:", e);
+      console.warn("Usando consecutivo local por timeout/error:", e);
     }
   }
   var currentNumber = parseInt(localStorage.getItem("ag_inv_counter") || "1000", 10) + 1;
