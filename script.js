@@ -83,6 +83,7 @@ window.actualizarResumenPago = function() {
   var invSurcharge = document.getElementById("inv-surcharge");
   var invTotalPrice = document.getElementById("inv-total-price");
   var invBasePrice = document.getElementById("inv-base-price");
+  var btnProcesar = document.getElementById("btnProcesarReserva");
 
   var base = activeInvoiceData.basePrice || 0;
 
@@ -97,6 +98,11 @@ window.actualizarResumenPago = function() {
     if (surchargeLine) surchargeLine.style.display = "flex";
     if (invSurcharge) invSurcharge.textContent = "$" + recargo.toLocaleString('es-CO') + " COP";
     if (invTotalPrice) invTotalPrice.textContent = "$" + total.toLocaleString('es-CO') + " COP";
+
+    if (btnProcesar) {
+      btnProcesar.innerHTML = '<i class="fas fa-credit-card"></i> Pagar $' + total.toLocaleString('es-CO') + ' COP en Bold y Agendar';
+      btnProcesar.style.backgroundColor = '#1c3d5a';
+    }
   } else if (radioPse && radioPse.checked) {
     activeInvoiceData.selectedMethod = "pse";
     activeInvoiceData.surcharge = 0;
@@ -104,6 +110,11 @@ window.actualizarResumenPago = function() {
 
     if (surchargeLine) surchargeLine.style.display = "none";
     if (invTotalPrice) invTotalPrice.textContent = "$" + base.toLocaleString('es-CO') + " COP";
+
+    if (btnProcesar) {
+      btnProcesar.innerHTML = '<i class="fas fa-university"></i> Pagar $' + base.toLocaleString('es-CO') + ' COP con PSE (Bold) y Agendar';
+      btnProcesar.style.backgroundColor = '#1c3d5a';
+    }
   } else {
     activeInvoiceData.selectedMethod = "efectivo_destino";
     activeInvoiceData.surcharge = 0;
@@ -111,6 +122,11 @@ window.actualizarResumenPago = function() {
 
     if (surchargeLine) surchargeLine.style.display = "none";
     if (invTotalPrice) invTotalPrice.textContent = "$" + base.toLocaleString('es-CO') + " COP";
+
+    if (btnProcesar) {
+      btnProcesar.innerHTML = '<i class="fab fa-whatsapp"></i> Confirmar Reserva y Agendar por WhatsApp';
+      btnProcesar.style.backgroundColor = '#16a34a';
+    }
   }
 
   if (invBasePrice) invBasePrice.textContent = "$" + base.toLocaleString('es-CO') + " COP";
@@ -120,7 +136,7 @@ window.procesarReservaYPago = function(event) {
   if (event) event.preventDefault();
 
   if (!activeInvoiceData) {
-    alert("Por favor calcula la tarifa de tu viaje antes de continuar.");
+    alert("Por favor calcula primero la tarifa de tu viaje en el formulario de arriba.");
     return;
   }
 
@@ -138,7 +154,7 @@ window.procesarReservaYPago = function(event) {
     enlacePago = "Pago en destino";
   }
 
-  // 1. Registro en Firebase en segundo plano (sin pausar la navegación del usuario)
+  // Guardado en Firebase en segundo plano sin pausar la navegación
   var db = getDB();
   if (db) {
     try {
@@ -156,15 +172,13 @@ window.procesarReservaYPago = function(event) {
         enlacePago: enlacePago,
         estadoPago: activeInvoiceData.selectedMethod === "efectivo_destino" ? "Pendiente en Destino" : "Pendiente en Línea",
         fechaCreacion: new Date().toLocaleString('es-CO')
-      }).catch(function(e) {
-        console.warn("No se pudo guardar en Firebase:", e);
-      });
+      }).catch(function(e) { console.warn(e); });
     } catch (e) {
-      console.warn("Excepción de Firebase:", e);
+      console.warn(e);
     }
   }
 
-  // 2. Construcción del mensaje de WhatsApp
+  // Construcción del mensaje de WhatsApp
   var stopsFormatted = "";
   if (activeInvoiceData.tripData.stops && activeInvoiceData.tripData.stops.length > 0) {
     stopsFormatted = "\n🛑 *Paradas intermedias:*\n" + activeInvoiceData.tripData.stops.map(function(s, i) { return "  " + (i + 1) + ". " + s; }).join("\n");
@@ -184,17 +198,22 @@ window.procesarReservaYPago = function(event) {
       "⚡ *Comisión Datafono (4%):* $" + activeInvoiceData.surcharge.toLocaleString('es-CO') + " COP\n";
   }
 
-  invoiceMsg += "💰 *TOTAL A PAGAR:* $" + activeInvoiceData.finalTotal.toLocaleString('es-CO') + " COP\n\n" +
-    "Quedo atento a la confirmación de la reserva. ¡Muchas gracias!";
+  invoiceMsg += "💰 *TOTAL A PAGAR:* $" + activeInvoiceData.finalTotal.toLocaleString('es-CO') + " COP\n";
+
+  if (enlacePago !== "Pago en destino") {
+    invoiceMsg += "🔗 *Link de Pago Bold:* " + enlacePago + "\n";
+  }
+
+  invoiceMsg += "\nQuedo atento a la confirmación de la reserva. ¡Muchas gracias!";
 
   var urlWA = "https://wa.me/" + CONFIG_PAGO.whatsappNumber + "?text=" + encodeURIComponent(invoiceMsg);
 
-  // 3. Ejecución inmediata (Síncrona)
+  // Redirección directa sin bloqueos
   if (activeInvoiceData.selectedMethod === "bold" || activeInvoiceData.selectedMethod === "pse") {
     window.open(urlWA, "_blank");
     window.location.href = enlacePago;
   } else {
-    window.open(urlWA, "_blank");
+    window.location.href = urlWA;
   }
 };
 
@@ -298,31 +317,24 @@ window.filtrarTablaAdmin = function() {
 // =================================================================
 // 5. GENERACIÓN DE FACTURAS Y COTIZADOR
 // =================================================================
-async function obtenerSiguienteConsecutivo() {
+function obtenerSiguienteConsecutivo() {
+  var currentNumber = parseInt(localStorage.getItem("ag_inv_counter") || "1000", 10) + 1;
+  localStorage.setItem("ag_inv_counter", currentNumber);
+  var invoiceCode = "AG-INV-" + currentNumber;
+
   var db = getDB();
   if (db) {
     try {
-      var transactionPromise = db.ref("configuracion/ultimoConsecutivo").transaction(function(currentValue) {
+      db.ref("configuracion/ultimoConsecutivo").transaction(function(currentValue) {
         return (currentValue || 1000) + 1;
       });
-      var timeoutPromise = new Promise(function(_, reject) {
-        setTimeout(function() { reject(new Error("Timeout Firebase")); }, 1500);
-      });
-      var result = await Promise.race([transactionPromise, timeoutPromise]);
-      if (result && result.snapshot && result.snapshot.val()) {
-        return "AG-INV-" + result.snapshot.val();
-      }
-    } catch (e) {
-      console.warn("Usando consecutivo local por timeout/error:", e);
-    }
+    } catch (e) {}
   }
-  var currentNumber = parseInt(localStorage.getItem("ag_inv_counter") || "1000", 10) + 1;
-  localStorage.setItem("ag_inv_counter", currentNumber);
-  return "AG-INV-" + currentNumber;
+  return invoiceCode;
 }
 
-async function displayInvoice(tripData, basePriceNumeric) {
-  var invoiceNum = await obtenerSiguienteConsecutivo();
+function displayInvoice(tripData, basePriceNumeric) {
+  var invoiceNum = obtenerSiguienteConsecutivo();
   var today = new Date().toLocaleDateString('es-CO', { 
     year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' 
   });
@@ -562,7 +574,7 @@ document.addEventListener("DOMContentLoaded", function() {
     displayInvoice(calculatedTripData, tarifaTotal);
   }
 
-  // --- RESEÑAS CON FIREBASE ---
+  // Reseñas con Firebase
   var starsContainer = document.getElementById("form-stars");
   var starIcons = starsContainer ? starsContainer.querySelectorAll("i") : [];
 
