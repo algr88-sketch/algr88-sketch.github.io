@@ -16,8 +16,9 @@ if (typeof firebase !== "undefined" && !firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
+// Link directo y totalmente limpio de Bold (Evita Error 404 en móviles)
 var CONFIG_PAGO = {
-  boldBaseUrl: "https://checkout.bold.co/payment/LNK_7JK1RINGWU", // Link directo de Bold
+  boldBaseUrl: "https://checkout.bold.co/payment/LNK_7JK1RINGWU",
   whatsappNumber: "573176653331",
   porcentajeRecargoBold: 0.04,
   adminPassword: "Olc.26colec*"
@@ -136,25 +137,23 @@ window.procesarReservaYPago = function(event) {
   if (event) event.preventDefault();
 
   if (!activeInvoiceData) {
-    alert("Por favor calcula primero la tarifa de tu viaje en el formulario de arriba.");
+    alert("Por favor calcula primero la tarifa de tu viaje antes de continuar.");
     return;
   }
 
   var methodText = "";
-  var enlacePago = "";
+  var enlacePago = CONFIG_PAGO.boldBaseUrl; // Asignación limpia sin concatenaciones
 
   if (activeInvoiceData.selectedMethod === "bold") {
     methodText = "Tarjeta de Crédito / Débito (Bold +4%)";
-    enlacePago = CONFIG_PAGO.boldBaseUrl;
   } else if (activeInvoiceData.selectedMethod === "pse") {
     methodText = "Transferencia Bancaria en Línea (PSE / Nequi vía Bold)";
-    enlacePago = CONFIG_PAGO.boldBaseUrl;
   } else {
     methodText = "Efectivo o Transferencia al finalizar el viaje";
     enlacePago = "Pago en destino";
   }
 
-  // Guardado en Firebase en segundo plano sin pausar la navegación
+  // Guardado en Firebase en segundo plano
   var db = getDB();
   if (db) {
     try {
@@ -208,10 +207,12 @@ window.procesarReservaYPago = function(event) {
 
   var urlWA = "https://wa.me/" + CONFIG_PAGO.whatsappNumber + "?text=" + encodeURIComponent(invoiceMsg);
 
-  // Redirección directa sin bloqueos
+  // REDIRECCIÓN COMPATIBLE CON NAVEGADORES MÓVILES
   if (activeInvoiceData.selectedMethod === "bold" || activeInvoiceData.selectedMethod === "pse") {
     window.open(urlWA, "_blank");
-    window.location.href = enlacePago;
+    setTimeout(function() {
+      window.location.href = enlacePago;
+    }, 150);
   } else {
     window.location.href = urlWA;
   }
